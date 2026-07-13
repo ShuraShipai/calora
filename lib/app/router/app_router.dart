@@ -1,4 +1,5 @@
 import 'package:calora/app/router/app_routes.dart';
+import 'package:calora/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:calora/features/auth/presentation/screens/login_screen.dart';
 import 'package:calora/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:calora/features/diary/presentation/screens/diary_screen.dart';
@@ -38,6 +39,7 @@ abstract final class AppRouter {
     AppRoutes.splash: (_) => const SplashScreen(),
     AppRoutes.login: (_) => const LoginScreen(),
     AppRoutes.signUp: (_) => const SignUpScreen(),
+    AppRoutes.forgotPassword: (_) => const ForgotPasswordScreen(),
     AppRoutes.onboarding: (_) => const OnboardingScreen(),
     AppRoutes.home: (_) => const HomeScreen(),
     AppRoutes.diary: (_) => const DiaryScreen(),

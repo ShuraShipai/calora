@@ -91,6 +91,7 @@ abstract final class AppElevations {
 
 abstract final class AppDurations {
   static const fast = Duration(milliseconds: 150);
+  static const standard = Duration(milliseconds: 250);
   static const spinner = Duration(milliseconds: 900);
   static const scannerAnalysis = Duration(milliseconds: 1600);
   static const toast = Duration(milliseconds: 2200);
@@ -106,6 +107,31 @@ abstract final class AppSizes {
   static const navigationAction = 52.0;
   static const captureButton = 70.0;
   static const brandMark = 64.0;
+  static const authBrandMark = 54.0;
+  static const actionButtonHeight = 46.0;
+  static const authContentMaxWidth = 430.0;
+  static const onboardingIcon = 38.0;
+  static const splashProgressWidth = 120.0;
+  static const progressHeight = 4.0;
+  static const listIcon = 34.0;
+  static const foodThumbnail = 42.0;
+  static const addButton = 30.0;
+  static const profileAvatar = 56.0;
+  static const calorieRing = 164.0;
+  static const waterRing = 150.0;
+  static const chart = 100.0;
+  static const compactChart = 70.0;
+  static const scanResultImage = 150.0;
+  static const scannerAction = 44.0;
+  static const scannerControl = 42.0;
+  static const ringInset = 5.0;
+  static const spinner = 38.0;
+  static const sheetHandleWidth = 42.0;
+  static const sheetHandleHeight = 4.0;
+}
+
+abstract final class AppRatios {
+  static const scannerFrameWidth = 0.78;
 }
 
 abstract final class AppStrokes {
@@ -120,4 +146,5 @@ abstract final class AppOpacity {
   static const disabled = 0.45;
   static const scrim = 0.42;
   static const scannerControl = 0.14;
+  static const splashProgress = 0.60;
 }

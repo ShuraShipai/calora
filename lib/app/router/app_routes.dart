@@ -2,6 +2,7 @@ abstract final class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const signUp = '/sign-up';
+  static const forgotPassword = '/forgot-password';
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const diary = '/diary';
@@ -23,6 +24,7 @@ abstract final class AppRoutes {
     splash,
     login,
     signUp,
+    forgotPassword,
     onboarding,
     home,
     diary,

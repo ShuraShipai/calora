@@ -22,6 +22,9 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.onAccent,
     required this.scannerStart,
     required this.scannerEnd,
+    required this.scanImageStart,
+    required this.scanImageEnd,
+    required this.scanImageInk,
   });
 
   static const light = AppColors(
@@ -44,6 +47,9 @@ class AppColors extends ThemeExtension<AppColors> {
     onAccent: Color(0xFFFFFFFF),
     scannerStart: Color(0xFF1B2B21),
     scannerEnd: Color(0xFF0C130F),
+    scanImageStart: Color(0xFFE7DFC9),
+    scanImageEnd: Color(0xFFCDBF95),
+    scanImageInk: Color(0xFF7A6B3F),
   );
 
   static const dark = AppColors(
@@ -66,6 +72,9 @@ class AppColors extends ThemeExtension<AppColors> {
     onAccent: Color(0xFFFFFFFF),
     scannerStart: Color(0xFF1B2B21),
     scannerEnd: Color(0xFF0C130F),
+    scanImageStart: Color(0xFFE7DFC9),
+    scanImageEnd: Color(0xFFCDBF95),
+    scanImageInk: Color(0xFF7A6B3F),
   );
 
   final Color canvas;
@@ -87,6 +96,9 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color onAccent;
   final Color scannerStart;
   final Color scannerEnd;
+  final Color scanImageStart;
+  final Color scanImageEnd;
+  final Color scanImageInk;
 
   @override
   AppColors copyWith() => this;
@@ -114,6 +126,9 @@ class AppColors extends ThemeExtension<AppColors> {
       onAccent: Color.lerp(onAccent, other.onAccent, t)!,
       scannerStart: Color.lerp(scannerStart, other.scannerStart, t)!,
       scannerEnd: Color.lerp(scannerEnd, other.scannerEnd, t)!,
+      scanImageStart: Color.lerp(scanImageStart, other.scanImageStart, t)!,
+      scanImageEnd: Color.lerp(scanImageEnd, other.scanImageEnd, t)!,
+      scanImageInk: Color.lerp(scanImageInk, other.scanImageInk, t)!,
     );
   }
 }
