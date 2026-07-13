@@ -1,11 +1,11 @@
 {
-    "name": "calora",
-    "short_name": "calora",
+    "name": "Calora",
+    "short_name": "Calora",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F6F4EC",
+    "theme_color": "#3F6B52",
+    "description": "Calora nutrition and wellness application.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

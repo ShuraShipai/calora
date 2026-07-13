@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "536466204456",
+    "project_id": "calora-shurashipai",
+    "storage_bucket": "calora-shurashipai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:536466204456:android:14623da8ce38738e40121d",
+        "android_client_info": {
+          "package_name": "com.example.calora"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBrHfTxrkgaCFJwZezD7xjyEQM4u0IgyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
