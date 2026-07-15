@@ -53,6 +53,8 @@ class DiaryProvider extends ChangeNotifier {
   int get proteinToday => nutritionToday.protein;
   int get carbsToday => nutritionToday.carbs;
   int get fatToday => nutritionToday.fat;
+  int get fiberToday => nutritionToday.fiber;
+  int get sugarToday => nutritionToday.sugar;
 
   bool _isSameDay(DateTime first, DateTime second) =>
       first.year == second.year &&
@@ -75,21 +77,58 @@ class DiaryProvider extends ChangeNotifier {
   Future<void> add(DiaryEntry entry) async {
     final uid = _uid;
     if (uid == null) throw StateError('Sign in to save diary entries.');
-    await _service.addEntry(uid, entry);
+    final savedEntry = entry.id.isEmpty
+        ? entry.copyWith(id: _newEntryId())
+        : entry;
+    final previousEntries = _entries;
+    _entries = <DiaryEntry>[savedEntry, ..._entries];
+    notifyListeners();
+    try {
+      await _service.addEntry(uid, savedEntry);
+    } on Object {
+      _entries = previousEntries;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> update(DiaryEntry entry) async {
     final uid = _uid;
     if (uid == null) throw StateError('Sign in to update diary entries.');
     if (entry.id.isEmpty) throw ArgumentError.value(entry.id, 'entry.id');
-    await _service.updateEntry(uid, entry);
+    final previousEntries = _entries;
+    _entries = _entries
+        .map((existing) => existing.id == entry.id ? entry : existing)
+        .toList(growable: false);
+    notifyListeners();
+    try {
+      await _service.updateEntry(uid, entry);
+    } on Object {
+      _entries = previousEntries;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> remove(String id) async {
     final uid = _uid;
     if (uid == null) return;
-    await _service.deleteEntry(uid, id);
+    final previousEntries = _entries;
+    _entries = _entries
+        .where((entry) => entry.id != id)
+        .toList(growable: false);
+    notifyListeners();
+    try {
+      await _service.deleteEntry(uid, id);
+    } on Object {
+      _entries = previousEntries;
+      notifyListeners();
+      rethrow;
+    }
   }
+
+  String _newEntryId() =>
+      'local-${DateTime.now().microsecondsSinceEpoch}-${_entries.length}';
 
   @override
   void dispose() {

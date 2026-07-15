@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DiaryEntry {
   const DiaryEntry({
@@ -12,6 +12,11 @@ class DiaryEntry {
     required this.carbs,
     required this.fat,
     required this.loggedAt,
+    this.servingQuantity,
+    this.servingUnit,
+    this.fiber,
+    this.sugar,
+    this.note,
   });
 
   factory DiaryEntry.fromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -26,6 +31,11 @@ class DiaryEntry {
       carbs: (data['carbs'] as num?)?.toInt() ?? 0,
       fat: (data['fat'] as num?)?.toInt() ?? 0,
       loggedAt: (data['loggedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      servingQuantity: data['servingQuantity'] as String?,
+      servingUnit: data['servingUnit'] as String?,
+      fiber: (data['fiber'] as num?)?.toInt(),
+      sugar: (data['sugar'] as num?)?.toInt(),
+      note: data['note'] as String?,
     );
   }
 
@@ -39,6 +49,54 @@ class DiaryEntry {
   final int carbs;
   final int fat;
   final DateTime loggedAt;
+  final String? servingQuantity;
+  final String? servingUnit;
+  final int? fiber;
+  final int? sugar;
+  final String? note;
+
+  String get displayServingQuantity =>
+      servingQuantity ?? _legacyServingParts.$1;
+  String get displayServingUnit => servingUnit ?? _legacyServingParts.$2;
+  bool get hasNote => note?.trim().isNotEmpty ?? false;
+
+  (String, String) get _legacyServingParts {
+    final parts = serving.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return ('', '');
+    return (parts.first, parts.skip(1).join(' '));
+  }
+
+  DiaryEntry copyWith({
+    String? id,
+    String? meal,
+    String? name,
+    String? serving,
+    int? calories,
+    int? protein,
+    int? carbs,
+    int? fat,
+    DateTime? loggedAt,
+    String? servingQuantity,
+    String? servingUnit,
+    int? fiber,
+    int? sugar,
+    String? note,
+  }) => DiaryEntry(
+    id: id ?? this.id,
+    meal: meal ?? this.meal,
+    name: name ?? this.name,
+    serving: serving ?? this.serving,
+    calories: calories ?? this.calories,
+    protein: protein ?? this.protein,
+    carbs: carbs ?? this.carbs,
+    fat: fat ?? this.fat,
+    loggedAt: loggedAt ?? this.loggedAt,
+    servingQuantity: servingQuantity ?? this.servingQuantity,
+    servingUnit: servingUnit ?? this.servingUnit,
+    fiber: fiber ?? this.fiber,
+    sugar: sugar ?? this.sugar,
+    note: note ?? this.note,
+  );
 
   Map<String, Object> toMap() => <String, Object>{
     'meal': meal,
@@ -49,5 +107,10 @@ class DiaryEntry {
     'carbs': carbs,
     'fat': fat,
     'loggedAt': Timestamp.fromDate(loggedAt),
+    'servingQuantity': ?servingQuantity,
+    'servingUnit': ?servingUnit,
+    'fiber': ?fiber,
+    'sugar': ?sugar,
+    if (hasNote) 'note': note!.trim(),
   };
 }

@@ -24,7 +24,7 @@ class FirestoreDiaryService implements DiaryService {
 
   @override
   Future<void> addEntry(String uid, DiaryEntry entry) =>
-      _entries(uid).add(entry.toMap());
+      _entries(uid).doc(entry.id).set(entry.toMap());
 
   @override
   Future<void> updateEntry(String uid, DiaryEntry entry) =>
