@@ -11,11 +11,27 @@ class ProgressPageBody extends StatelessWidget {
     required this.selectedFilter,
     required this.onFilterSelected,
     required this.onWeightPressed,
+    required this.calorieValues,
+    required this.weightValues,
+    required this.waterValues,
+    required this.labels,
+    required this.averageCalories,
+    required this.proteinAverage,
+    required this.carbohydrateAverage,
+    required this.fatAverage,
   });
 
   final int selectedFilter;
   final ValueChanged<int> onFilterSelected;
   final VoidCallback onWeightPressed;
+  final List<double> calorieValues;
+  final List<double> weightValues;
+  final List<double> waterValues;
+  final List<String> labels;
+  final int averageCalories;
+  final int proteinAverage;
+  final int carbohydrateAverage;
+  final int fatAverage;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +51,26 @@ class ProgressPageBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.sectionGap),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.page),
-          child: ProgressInsightsCard(),
+          child: ProgressInsightsCard(
+            calorieValues: calorieValues,
+            labels: labels,
+            averageCalories: averageCalories,
+            proteinAverage: proteinAverage,
+            carbohydrateAverage: carbohydrateAverage,
+            fatAverage: fatAverage,
+          ),
         ),
         const SizedBox(height: AppSpacing.sectionGap),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-          child: ProgressTrendsCard(onWeightPressed: onWeightPressed),
+          child: ProgressTrendsCard(
+            onWeightPressed: onWeightPressed,
+            weightValues: weightValues,
+            waterValues: waterValues,
+            labels: labels,
+          ),
         ),
       ],
     );

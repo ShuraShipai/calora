@@ -12,7 +12,13 @@ class ProgressFilterChips extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelected;
 
-  static const _labels = <String>['Week', 'Month', '3 months', 'Custom'];
+  static const _labels = <String>[
+    'Daily',
+    'Week',
+    'Month',
+    '3 months',
+    'Custom',
+  ];
 
   @override
   Widget build(BuildContext context) {

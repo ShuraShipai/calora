@@ -5,7 +5,22 @@ import 'package:calora/core/widgets/calora_metrics.dart';
 import 'package:flutter/material.dart';
 
 class ProgressInsightsCard extends StatelessWidget {
-  const ProgressInsightsCard({super.key});
+  const ProgressInsightsCard({
+    super.key,
+    required this.calorieValues,
+    required this.labels,
+    required this.averageCalories,
+    required this.proteinAverage,
+    required this.carbohydrateAverage,
+    required this.fatAverage,
+  });
+
+  final List<double> calorieValues;
+  final List<String> labels;
+  final int averageCalories;
+  final int proteinAverage;
+  final int carbohydrateAverage;
+  final int fatAverage;
 
   @override
   Widget build(BuildContext context) {
@@ -15,22 +30,25 @@ class ProgressInsightsCard extends StatelessWidget {
         children: <Widget>[
           Text('Daily calorie intake', style: _sectionLabel(context)),
           const SizedBox(height: AppSpacing.lg),
-          const CaloraBarChart(
-            values: <double>[0, 0, 0, 0, 0, 0, 0],
-            highlighted: <int>{},
+          CaloraBarChart(
+            values: calorieValues,
+            labels: labels,
+            highlighted: calorieValues.isEmpty
+                ? const <int>{}
+                : <int>{calorieValues.length - 1},
           ),
           const SizedBox(height: AppSpacing.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text(
-                'Weekly average',
+                'Daily average',
                 style: context.textTheme.bodySmall?.copyWith(
                   color: context.colors.inkSoft,
                 ),
               ),
               Text(
-                '0 kcal',
+                '$averageCalories kcal',
                 style: context.textTheme.bodySmall?.copyWith(
                   fontWeight: AppFontWeights.bold,
                 ),
@@ -45,22 +63,22 @@ class ProgressInsightsCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xxl),
           CaloraMacroMeter(
             label: 'Protein',
-            value: 'No data',
-            filled: 0,
+            value: 'avg ${proteinAverage}g',
+            filled: _filled(proteinAverage),
             color: context.colors.protein,
           ),
           const SizedBox(height: AppSpacing.xxl),
           CaloraMacroMeter(
             label: 'Carbohydrates',
-            value: 'No data',
-            filled: 0,
+            value: 'avg ${carbohydrateAverage}g',
+            filled: _filled(carbohydrateAverage),
             color: context.colors.carb,
           ),
           const SizedBox(height: AppSpacing.xxl),
           CaloraMacroMeter(
             label: 'Fat',
-            value: 'No data',
-            filled: 0,
+            value: 'avg ${fatAverage}g',
+            filled: _filled(fatAverage),
             color: context.colors.fat,
           ),
         ],
@@ -74,4 +92,6 @@ class ProgressInsightsCard extends StatelessWidget {
         fontWeight: AppFontWeights.bold,
         letterSpacing: AppSpacing.xxs,
       );
+
+  int _filled(int grams) => (grams / 10).round().clamp(0, 8);
 }

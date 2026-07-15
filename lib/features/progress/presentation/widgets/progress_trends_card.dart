@@ -5,9 +5,18 @@ import 'package:calora/core/widgets/calora_metrics.dart';
 import 'package:flutter/material.dart';
 
 class ProgressTrendsCard extends StatelessWidget {
-  const ProgressTrendsCard({super.key, required this.onWeightPressed});
+  const ProgressTrendsCard({
+    super.key,
+    required this.onWeightPressed,
+    required this.weightValues,
+    required this.waterValues,
+    required this.labels,
+  });
 
   final VoidCallback onWeightPressed;
+  final List<double> weightValues;
+  final List<double> waterValues;
+  final List<String> labels;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +34,10 @@ class ProgressTrendsCard extends StatelessWidget {
               children: <Widget>[
                 Text('Weight progress', style: _sectionLabel(context)),
                 const SizedBox(height: AppSpacing.lg),
-                const CaloraLineChart(
-                  values: <double>[0, 0, 0, 0, 0, 0, 0],
+                CaloraLineChart(
+                  values: weightValues,
                   height: AppSizes.chart,
+                  showLastPoint: weightValues.isNotEmpty,
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: AppSpacing.section),
@@ -39,9 +49,12 @@ class ProgressTrendsCard extends StatelessWidget {
                 Text('Water intake', style: _sectionLabel(context)),
                 const SizedBox(height: AppSpacing.lg),
                 CaloraBarChart(
-                  values: const <double>[0, 0, 0, 0, 0, 0, 0],
+                  values: waterValues,
+                  labels: labels,
                   color: context.colors.water,
-                  highlighted: const <int>{0, 1, 2, 3, 4, 5, 6},
+                  highlighted: Set<int>.from(
+                    List<int>.generate(waterValues.length, (index) => index),
+                  ),
                   height: AppSizes.compactChart,
                 ),
               ],

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 abstract interface class DiaryService {
   Stream<List<DiaryEntry>> watchEntries(String uid);
   Future<void> addEntry(String uid, DiaryEntry entry);
+  Future<void> updateEntry(String uid, DiaryEntry entry);
   Future<void> deleteEntry(String uid, String entryId);
 }
 
@@ -24,6 +25,10 @@ class FirestoreDiaryService implements DiaryService {
   @override
   Future<void> addEntry(String uid, DiaryEntry entry) =>
       _entries(uid).add(entry.toMap());
+
+  @override
+  Future<void> updateEntry(String uid, DiaryEntry entry) =>
+      _entries(uid).doc(entry.id).update(entry.toMap());
 
   @override
   Future<void> deleteEntry(String uid, String entryId) =>

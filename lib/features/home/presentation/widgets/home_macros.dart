@@ -20,7 +20,10 @@ class HomeMacros extends StatelessWidget {
         ),
         CaloraMacroMeter(
           label: 'Protein',
-          value: '${dashboard.proteinGrams} / ${dashboard.proteinGoalGrams} g',
+          value: _valueLabel(
+            dashboard.proteinGrams,
+            dashboard.proteinGoalGrams,
+          ),
           filled: dashboard.meterSegmentsFor(
             dashboard.proteinGrams,
             dashboard.proteinGoalGrams,
@@ -30,8 +33,10 @@ class HomeMacros extends StatelessWidget {
         const SizedBox(height: AppSpacing.xxl),
         CaloraMacroMeter(
           label: 'Carbohydrates',
-          value:
-              '${dashboard.carbohydratesGrams} / ${dashboard.carbohydratesGoalGrams} g',
+          value: _valueLabel(
+            dashboard.carbohydratesGrams,
+            dashboard.carbohydratesGoalGrams,
+          ),
           filled: dashboard.meterSegmentsFor(
             dashboard.carbohydratesGrams,
             dashboard.carbohydratesGoalGrams,
@@ -41,7 +46,7 @@ class HomeMacros extends StatelessWidget {
         const SizedBox(height: AppSpacing.xxl),
         CaloraMacroMeter(
           label: 'Fat',
-          value: '${dashboard.fatGrams} / ${dashboard.fatGoalGrams} g',
+          value: _valueLabel(dashboard.fatGrams, dashboard.fatGoalGrams),
           filled: dashboard.meterSegmentsFor(
             dashboard.fatGrams,
             dashboard.fatGoalGrams,
@@ -51,4 +56,7 @@ class HomeMacros extends StatelessWidget {
       ],
     );
   }
+
+  String _valueLabel(int value, int goal) =>
+      goal > 0 ? '$value / $goal g' : '$value g';
 }

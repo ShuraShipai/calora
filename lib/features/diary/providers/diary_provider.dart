@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/features/diary/models/diary_entry.dart';
-import 'package:calora/features/diary/services/diary_service.dart';
+import 'package:calora/features/diary/models/diary_nutrition_totals.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
+import 'package:calora/features/diary/services/diary_service.dart';
 import 'package:flutter/foundation.dart';
 
 class DiaryProvider extends ChangeNotifier {
@@ -13,6 +14,29 @@ class DiaryProvider extends ChangeNotifier {
   List<DiaryEntry> _entries = const <DiaryEntry>[];
   String? _uid;
   List<DiaryEntry> get entries => _entries;
+
+  /// Returns totals from entries logged on [date], regardless of meal type.
+  DiaryNutritionTotals nutritionFor(DateTime date) => _entries
+      .where((entry) => _isSameDay(entry.loggedAt, date))
+      .fold(
+        const DiaryNutritionTotals.zero(),
+        (totals, entry) => totals.add(DiaryNutritionTotals.fromEntry(entry)),
+      );
+
+  /// Returns totals for [startInclusive, endExclusive).
+  DiaryNutritionTotals nutritionBetween(
+    DateTime startInclusive,
+    DateTime endExclusive,
+  ) => _entries
+      .where(
+        (entry) =>
+            !entry.loggedAt.isBefore(startInclusive) &&
+            entry.loggedAt.isBefore(endExclusive),
+      )
+      .fold(
+        const DiaryNutritionTotals.zero(),
+        (totals, entry) => totals.add(DiaryNutritionTotals.fromEntry(entry)),
+      );
   List<DiaryEntry> entriesFor(DateTime date, MealType type) => _entries
       .where(
         (entry) =>
@@ -24,25 +48,16 @@ class DiaryProvider extends ChangeNotifier {
       .toList();
   int caloriesFor(DateTime date, MealType type) =>
       entriesFor(date, type).fold(0, (sum, entry) => sum + entry.calories);
-  int get caloriesToday => _entries
-      .where((entry) => _isToday(entry.loggedAt))
-      .fold(0, (sum, entry) => sum + entry.calories);
-  int get proteinToday => _entries
-      .where((entry) => _isToday(entry.loggedAt))
-      .fold(0, (sum, entry) => sum + entry.protein);
-  int get carbsToday => _entries
-      .where((entry) => _isToday(entry.loggedAt))
-      .fold(0, (sum, entry) => sum + entry.carbs);
-  int get fatToday => _entries
-      .where((entry) => _isToday(entry.loggedAt))
-      .fold(0, (sum, entry) => sum + entry.fat);
+  DiaryNutritionTotals get nutritionToday => nutritionFor(DateTime.now());
+  int get caloriesToday => nutritionToday.calories;
+  int get proteinToday => nutritionToday.protein;
+  int get carbsToday => nutritionToday.carbs;
+  int get fatToday => nutritionToday.fat;
 
-  bool _isToday(DateTime value) {
-    final now = DateTime.now();
-    return value.year == now.year &&
-        value.month == now.month &&
-        value.day == now.day;
-  }
+  bool _isSameDay(DateTime first, DateTime second) =>
+      first.year == second.year &&
+      first.month == second.month &&
+      first.day == second.day;
 
   void updateUser(UserProfile? profile) {
     if (_uid == profile?.uid) return;
@@ -61,6 +76,13 @@ class DiaryProvider extends ChangeNotifier {
     final uid = _uid;
     if (uid == null) throw StateError('Sign in to save diary entries.');
     await _service.addEntry(uid, entry);
+  }
+
+  Future<void> update(DiaryEntry entry) async {
+    final uid = _uid;
+    if (uid == null) throw StateError('Sign in to update diary entries.');
+    if (entry.id.isEmpty) throw ArgumentError.value(entry.id, 'entry.id');
+    await _service.updateEntry(uid, entry);
   }
 
   Future<void> remove(String id) async {
