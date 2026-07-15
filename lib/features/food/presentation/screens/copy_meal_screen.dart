@@ -44,6 +44,7 @@ class _CopyMealScreenState extends State<CopyMealScreen> {
           fiber: entry.fiber,
           sugar: entry.sugar,
           note: entry.note,
+          source: entry.source,
         ),
       );
       if (!mounted) return;
@@ -61,11 +62,7 @@ class _CopyMealScreenState extends State<CopyMealScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final entries = context
-        .watch<DiaryProvider>()
-        .entries
-        .where((entry) => !_isToday(entry.loggedAt))
-        .toList();
+    final entries = context.watch<DiaryProvider>().previousMealEntries;
     return CaloraPage(
       screenId: 'copymeal',
       title: 'Copy a previous meal',
@@ -84,12 +81,5 @@ class _CopyMealScreenState extends State<CopyMealScreen> {
         ],
       ),
     );
-  }
-
-  bool _isToday(DateTime value) {
-    final now = DateTime.now();
-    return value.year == now.year &&
-        value.month == now.month &&
-        value.day == now.day;
   }
 }

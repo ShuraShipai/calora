@@ -127,6 +127,27 @@ void main() {
         expect(service.deletedEntryId, savedId);
       },
     );
+
+    test('makes a newly saved entry available to copy immediately', () async {
+      final entry = _entry(id: '', loggedAt: DateTime.now(), calories: 125);
+
+      await provider.add(entry);
+
+      expect(provider.previousMealEntries, hasLength(1));
+      expect(provider.previousMealEntries.single.name, 'Food');
+      expect(
+        provider.previousMealEntries.single.loggedAt.day,
+        entry.loggedAt.day,
+      );
+    });
+  });
+
+  test('writes null for cleared optional food details', () {
+    final entry = _entry(id: 'entry-1', loggedAt: DateTime(2026, 7, 15));
+
+    expect(entry.toMap()['fiber'], isNull);
+    expect(entry.toMap()['sugar'], isNull);
+    expect(entry.toMap()['note'], isNull);
   });
 }
 

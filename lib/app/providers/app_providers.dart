@@ -1,4 +1,5 @@
 import 'package:calora/app/providers/theme_provider.dart';
+import 'package:calora/app/services/theme_preferences_service.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/auth/services/auth_service.dart';
 import 'package:calora/features/auth/services/user_profile_service.dart';
@@ -12,11 +13,21 @@ import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:calora/features/scanner/providers/scanner_provider.dart';
 import 'package:calora/features/scanner/services/barcode_scanner_service.dart';
 import 'package:calora/features/scanner/services/food_product_lookup_service.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
-final List<SingleChildWidget> appProviders = <SingleChildWidget>[
-  ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
+List<SingleChildWidget> appProviders({
+  required ThemePreferencesService themePreferences,
+  required ThemeMode initialThemeMode,
+}) => <SingleChildWidget>[
+  Provider<ThemePreferencesService>.value(value: themePreferences),
+  ChangeNotifierProvider<ThemeProvider>(
+    create: (context) => ThemeProvider(
+      preferences: context.read<ThemePreferencesService>(),
+      initialThemeMode: initialThemeMode,
+    ),
+  ),
   Provider<AuthService>(create: (_) => FirebaseAuthService()),
   Provider<UserProfileService>(create: (_) => FirestoreUserProfileService()),
   Provider<HomeDashboardService>(

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_page.dart';
+import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:calora/features/diary/presentation/widgets/diary_data.dart';
 import 'package:calora/features/diary/presentation/widgets/diary_meal_card.dart';
-import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:flutter/material.dart';
 
 class DiaryDaySection extends StatelessWidget {
@@ -22,6 +22,7 @@ class DiaryDaySection extends StatelessWidget {
         for (var index = 0; index < day.meals.length; index++) ...<Widget>[
           DiaryMealCard(
             meal: day.meals[index],
+            canManage: day.canManage,
             onAdd: day.canAdd
                 ? () => unawaited(
                     Navigator.pushNamed(

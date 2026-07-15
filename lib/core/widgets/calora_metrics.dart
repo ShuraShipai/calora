@@ -288,7 +288,17 @@ class _LinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (values.length < 2) return;
+    if (values.isEmpty) return;
+    if (values.length == 1) {
+      if (showLastPoint) {
+        canvas.drawCircle(
+          Offset(size.width / 2, size.height * values.single),
+          AppSpacing.xs,
+          Paint()..color = color,
+        );
+      }
+      return;
+    }
     final path = Path();
     for (var index = 0; index < values.length; index++) {
       final point = Offset(

@@ -1,3 +1,4 @@
+import 'package:calora/features/diary/models/diary_food_source.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -17,6 +18,7 @@ class DiaryEntry {
     this.fiber,
     this.sugar,
     this.note,
+    this.source = DiaryFoodSource.custom,
   });
 
   factory DiaryEntry.fromDocument(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -36,6 +38,10 @@ class DiaryEntry {
       fiber: (data['fiber'] as num?)?.toInt(),
       sugar: (data['sugar'] as num?)?.toInt(),
       note: data['note'] as String?,
+      source: DiaryFoodSourceX.fromStored(
+        (data['source'] ?? data['foodSource'] ?? data['entrySource'])
+            as String?,
+      ),
     );
   }
 
@@ -54,6 +60,7 @@ class DiaryEntry {
   final int? fiber;
   final int? sugar;
   final String? note;
+  final DiaryFoodSource source;
 
   String get displayServingQuantity =>
       servingQuantity ?? _legacyServingParts.$1;
@@ -81,6 +88,7 @@ class DiaryEntry {
     int? fiber,
     int? sugar,
     String? note,
+    DiaryFoodSource? source,
   }) => DiaryEntry(
     id: id ?? this.id,
     meal: meal ?? this.meal,
@@ -96,9 +104,10 @@ class DiaryEntry {
     fiber: fiber ?? this.fiber,
     sugar: sugar ?? this.sugar,
     note: note ?? this.note,
+    source: source ?? this.source,
   );
 
-  Map<String, Object> toMap() => <String, Object>{
+  Map<String, Object?> toMap() => <String, Object?>{
     'meal': meal,
     'name': name,
     'serving': serving,
@@ -107,10 +116,11 @@ class DiaryEntry {
     'carbs': carbs,
     'fat': fat,
     'loggedAt': Timestamp.fromDate(loggedAt),
-    'servingQuantity': ?servingQuantity,
-    'servingUnit': ?servingUnit,
-    'fiber': ?fiber,
-    'sugar': ?sugar,
-    if (hasNote) 'note': note!.trim(),
+    'servingQuantity': servingQuantity,
+    'servingUnit': servingUnit,
+    'fiber': fiber,
+    'sugar': sugar,
+    'note': hasNote ? note!.trim() : null,
+    'source': source.storedValue,
   };
 }

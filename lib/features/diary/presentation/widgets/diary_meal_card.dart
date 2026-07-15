@@ -7,10 +7,16 @@ import 'package:calora/features/diary/presentation/widgets/diary_meal_header.dar
 import 'package:flutter/material.dart';
 
 class DiaryMealCard extends StatelessWidget {
-  const DiaryMealCard({super.key, required this.meal, this.onAdd});
+  const DiaryMealCard({
+    super.key,
+    required this.meal,
+    this.onAdd,
+    this.canManage = false,
+  });
 
   final DiaryMealData meal;
   final VoidCallback? onAdd;
+  final bool canManage;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +39,8 @@ class DiaryMealCard extends StatelessWidget {
             if (meal.foods.isEmpty)
               const DiaryEmptyMeal()
             else
-              for (final food in meal.foods) DiaryFoodItem(food: food),
+              for (final food in meal.foods)
+                DiaryFoodItem(food: food, canManage: canManage),
           ],
         ),
       ),

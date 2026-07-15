@@ -53,4 +53,42 @@ void main() {
     expect(find.text('7 g'), findsOneWidget);
     expect(find.text('Made with almond milk'), findsOneWidget);
   });
+
+  testWidgets('shows edit and remove actions only when food can be managed', (
+    tester,
+  ) async {
+    final entry = DiaryEntry(
+      id: 'food-1',
+      meal: 'Breakfast',
+      name: 'Berry oats',
+      serving: '1 bowl',
+      calories: 320,
+      protein: 12,
+      carbs: 48,
+      fat: 9,
+      loggedAt: DateTime(2026, 7, 15),
+    );
+    final food = DiaryFoodData(
+      name: entry.name,
+      details: entry.serving,
+      calories: '${entry.calories}',
+      entry: entry,
+    );
+
+    await tester.pumpWidget(_foodItemApp(food));
+    expect(find.byTooltip('Edit food'), findsNothing);
+    expect(find.byTooltip('Remove food'), findsNothing);
+
+    await tester.pumpWidget(_foodItemApp(food, canManage: true));
+    expect(find.byTooltip('Edit food'), findsOneWidget);
+    expect(find.byTooltip('Remove food'), findsOneWidget);
+  });
 }
+
+Widget _foodItemApp(DiaryFoodData food, {bool canManage = false}) =>
+    MaterialApp(
+      theme: AppTheme.light,
+      home: Scaffold(
+        body: DiaryFoodItem(food: food, canManage: canManage),
+      ),
+    );

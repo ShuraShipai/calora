@@ -34,9 +34,11 @@ class DiaryDayData {
     required this.label,
     required this.meals,
     this.canAdd = false,
+    this.canManage = false,
   });
 
   final String label;
   final List<DiaryMealData> meals;
   final bool canAdd;
+  final bool canManage;
 }

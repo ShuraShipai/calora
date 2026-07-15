@@ -6,6 +6,7 @@ import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:calora/features/diary/models/diary_entry.dart';
+import 'package:calora/features/diary/models/diary_food_source.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/scanner/models/scan_item.dart';
@@ -93,6 +94,9 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
             carbs: item.carbs,
             fat: item.fat,
             loggedAt: DateTime.now(),
+            source: request.mode == ScannerMode.barcode
+                ? DiaryFoodSource.barcode
+                : DiaryFoodSource.scanned,
           ),
         );
       }

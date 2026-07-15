@@ -79,6 +79,7 @@ class DiaryDashboard extends StatelessWidget {
       for (final type in MealType.values) _mealFor(date, type),
     ],
     canAdd: DateUtils.isSameDay(date, today),
+    canManage: DateUtils.isSameDay(date, today),
   );
   DiaryMealData _mealFor(DateTime date, MealType type) {
     final entries = diary.entriesFor(date, type);

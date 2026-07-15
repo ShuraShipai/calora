@@ -2,8 +2,10 @@ import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/diary/models/diary_entry.dart';
+import 'package:calora/features/diary/models/diary_food_source.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
+import 'package:calora/features/food/models/custom_food_edit_arguments.dart';
 import 'package:calora/features/food/presentation/widgets/custom_food_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +30,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   final _sugarController = TextEditingController();
   final _noteController = TextEditingController();
   MealType _meal = MealType.breakfast;
+  DiaryEntry? _editingEntry;
   bool _selectionResolved = false;
   DateTime _loggedAt = DateTime.now();
 
@@ -88,12 +91,16 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   Widget build(BuildContext context) {
     if (!_selectionResolved) {
       final arguments = ModalRoute.of(context)?.settings.arguments;
-      if (arguments is MealSelectionArguments) _meal = arguments.mealType;
+      if (arguments is MealSelectionArguments) {
+        _meal = arguments.mealType;
+      } else if (arguments is CustomFoodEditArguments) {
+        _populateForEditing(arguments.entry);
+      }
       _selectionResolved = true;
     }
     return CaloraPage(
       screenId: 'customfood',
-      title: 'Custom food',
+      title: _editingEntry?.source.editTitle ?? 'Custom food',
       child: ListView(
         children: <Widget>[
           CaloraSection(
@@ -119,29 +126,16 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
           ),
           CaloraSection(
             child: CaloraActionButton(
-              label: 'Save to diary',
+              label: _editingEntry == null ? 'Save to diary' : 'Save changes',
               onPressed: () async {
                 if (!(_formKey.currentState?.validate() ?? false)) return;
                 try {
-                  await context.read<DiaryProvider>().add(
-                    DiaryEntry(
-                      id: '',
-                      meal: _meal.storedValue,
-                      name: _nameController.text.trim(),
-                      serving:
-                          '${_servingQuantityController.text.trim()} ${_servingUnitController.text.trim()}',
-                      calories: int.tryParse(_caloriesController.text) ?? 0,
-                      protein: int.tryParse(_proteinController.text) ?? 0,
-                      carbs: int.tryParse(_carbsController.text) ?? 0,
-                      fat: int.tryParse(_fatController.text) ?? 0,
-                      loggedAt: _loggedAt,
-                      servingQuantity: _servingQuantityController.text.trim(),
-                      servingUnit: _servingUnitController.text.trim(),
-                      fiber: int.tryParse(_fiberController.text),
-                      sugar: int.tryParse(_sugarController.text),
-                      note: _noteController.text.trim(),
-                    ),
-                  );
+                  final entry = _entryFromFields();
+                  if (_editingEntry == null) {
+                    await context.read<DiaryProvider>().add(entry);
+                  } else {
+                    await context.read<DiaryProvider>().update(entry);
+                  }
                 } catch (_) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -165,4 +159,39 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
       ),
     );
   }
+
+  void _populateForEditing(DiaryEntry entry) {
+    _editingEntry = entry;
+    _meal = entry.mealType;
+    _loggedAt = entry.loggedAt;
+    _nameController.text = entry.name;
+    _caloriesController.text = '${entry.calories}';
+    _servingQuantityController.text = entry.displayServingQuantity;
+    _servingUnitController.text = entry.displayServingUnit;
+    _proteinController.text = '${entry.protein}';
+    _carbsController.text = '${entry.carbs}';
+    _fatController.text = '${entry.fat}';
+    _fiberController.text = entry.fiber == null ? '' : '${entry.fiber}';
+    _sugarController.text = entry.sugar == null ? '' : '${entry.sugar}';
+    _noteController.text = entry.note ?? '';
+  }
+
+  DiaryEntry _entryFromFields() => DiaryEntry(
+    id: _editingEntry?.id ?? '',
+    meal: _meal.storedValue,
+    name: _nameController.text.trim(),
+    serving:
+        '${_servingQuantityController.text.trim()} ${_servingUnitController.text.trim()}',
+    calories: int.tryParse(_caloriesController.text) ?? 0,
+    protein: int.tryParse(_proteinController.text) ?? 0,
+    carbs: int.tryParse(_carbsController.text) ?? 0,
+    fat: int.tryParse(_fatController.text) ?? 0,
+    loggedAt: _loggedAt,
+    servingQuantity: _servingQuantityController.text.trim(),
+    servingUnit: _servingUnitController.text.trim(),
+    fiber: int.tryParse(_fiberController.text),
+    sugar: int.tryParse(_sugarController.text),
+    note: _noteController.text.trim(),
+    source: _editingEntry?.source ?? DiaryFoodSource.custom,
+  );
 }

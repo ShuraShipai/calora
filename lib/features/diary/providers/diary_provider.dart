@@ -15,6 +15,12 @@ class DiaryProvider extends ChangeNotifier {
   String? _uid;
   List<DiaryEntry> get entries => _entries;
 
+  /// Saved diary entries available to the Copy previous meal flow.
+  ///
+  /// This intentionally includes today's entries so a newly saved food can be
+  /// re-logged immediately for another meal.
+  List<DiaryEntry> get previousMealEntries => _entries;
+
   /// Returns totals from entries logged on [date], regardless of meal type.
   DiaryNutritionTotals nutritionFor(DateTime date) => _entries
       .where((entry) => _isSameDay(entry.loggedAt, date))

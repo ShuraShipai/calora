@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:calora/app/calora_app.dart';
 import 'package:calora/app/providers/theme_provider.dart';
 import 'package:calora/app/router/app_routes.dart';
+import 'package:calora/app/services/theme_preferences_service.dart';
 import 'package:calora/core/theme/app_colors.dart';
 import 'package:calora/core/theme/app_theme.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
@@ -58,7 +59,10 @@ Widget _testApp({ThemeMode themeMode = ThemeMode.system}) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<ThemeProvider>(
-        create: (_) => ThemeProvider()..setThemeMode(themeMode),
+        create: (_) => ThemeProvider(
+          preferences: _FakeThemePreferences(),
+          initialThemeMode: themeMode,
+        ),
       ),
       ChangeNotifierProvider<AuthProvider>(
         create: (_) =>
@@ -84,4 +88,12 @@ class _FakeHomeDashboardService implements HomeDashboardService {
   }) => Stream<HomeDashboard>.value(
     HomeDashboard.empty(calorieGoal: calorieGoal),
   );
+}
+
+class _FakeThemePreferences implements ThemePreferencesService {
+  @override
+  Future<ThemeMode> loadThemeMode() async => ThemeMode.system;
+
+  @override
+  Future<void> saveThemeMode(ThemeMode themeMode) async {}
 }
