@@ -1,17 +1,19 @@
-import 'dart:convert';
-
+import 'package:calora/core/network/network_client.dart';
+import 'package:calora/core/network/network_exception.dart';
 import 'package:calora/features/scanner/models/barcode_product.dart';
-import 'package:http/http.dart' as http;
 
 abstract interface class FoodProductLookupService {
   Future<BarcodeProduct?> lookupBarcode(String barcode);
 }
 
 class OpenFoodFactsProductLookupService implements FoodProductLookupService {
-  OpenFoodFactsProductLookupService({http.Client? client})
-    : _client = client ?? http.Client();
+  factory OpenFoodFactsProductLookupService({
+    required NetworkClient networkClient,
+  }) => OpenFoodFactsProductLookupService._(networkClient);
 
-  final http.Client _client;
+  OpenFoodFactsProductLookupService._(this._networkClient);
+
+  final NetworkClient _networkClient;
 
   @override
   Future<BarcodeProduct?> lookupBarcode(String barcode) async {
@@ -21,7 +23,7 @@ class OpenFoodFactsProductLookupService implements FoodProductLookupService {
     }
 
     try {
-      final response = await _client.get(
+      final body = await _networkClient.getJson(
         Uri.https(
           'world.openfoodfacts.org',
           '/api/v2/product/$normalizedBarcode.json',
@@ -35,12 +37,7 @@ class OpenFoodFactsProductLookupService implements FoodProductLookupService {
           'User-Agent': 'Calora/1.0',
         },
       );
-      if (response.statusCode != 200) {
-        throw BarcodeLookupException('Product lookup failed.');
-      }
-
-      final body = jsonDecode(response.body);
-      if (body is! Map<String, dynamic> || body['status'] != 1) return null;
+      if (body['status'] != 1) return null;
       final product = body['product'];
       if (product is! Map<String, dynamic>) return null;
       final result = BarcodeProduct.fromOpenFoodFacts(
@@ -50,6 +47,8 @@ class OpenFoodFactsProductLookupService implements FoodProductLookupService {
       return result.name.isEmpty ? null : result;
     } on BarcodeLookupException {
       rethrow;
+    } on NetworkException catch (error) {
+      throw BarcodeLookupException(error.message);
     } on Object catch (_) {
       throw BarcodeLookupException('Could not reach the food database.');
     }

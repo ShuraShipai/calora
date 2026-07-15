@@ -19,6 +19,8 @@ abstract final class AppRoutes {
   static const reminders = '/profile/reminders';
   static const units = '/profile/units';
   static const personalDetails = '/profile/personal-details';
+  static const privacy = '/profile/privacy';
+  static const helpSupport = '/profile/help-support';
 
   static const all = <String>{
     splash,
@@ -41,5 +43,7 @@ abstract final class AppRoutes {
     reminders,
     units,
     personalDetails,
+    privacy,
+    helpSupport,
   };
 }

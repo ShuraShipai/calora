@@ -33,4 +33,41 @@ void main() {
     expect(range.start, DateTime(2026, 5, 1));
     expect(range.end, DateTime(2026, 7, 16));
   });
+
+  test('week labels use weekday abbreviations', () {
+    final range = ProgressDateRange.week(now);
+
+    expect(range.weekdayLabels, <String>[
+      'Thu',
+      'Fri',
+      'Sat',
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+    ]);
+  });
+
+  test('month labels use day numbers', () {
+    final range = ProgressDateRange.month(now);
+
+    expect(range.dayOfMonthLabels.first, '1');
+    expect(range.dayOfMonthLabels.last, '15');
+  });
+
+  test('long-range labels include the month to avoid repeated day numbers', () {
+    final range = ProgressDateRange(
+      DateTime(2026, 6, 30),
+      DateTime(2026, 7, 2),
+    );
+
+    expect(range.compactDateLabels, <String>['30 Jun', '1 Jul']);
+  });
+
+  test('a range cannot end before it starts', () {
+    expect(
+      () => ProgressDateRange(DateTime(2026, 7, 16), DateTime(2026, 7, 15)),
+      throwsAssertionError,
+    );
+  });
 }

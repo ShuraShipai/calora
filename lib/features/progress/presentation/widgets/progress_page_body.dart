@@ -19,6 +19,9 @@ class ProgressPageBody extends StatelessWidget {
     required this.proteinAverage,
     required this.carbohydrateAverage,
     required this.fatAverage,
+    required this.proteinFilled,
+    required this.carbohydrateFilled,
+    required this.fatFilled,
   });
 
   final int selectedFilter;
@@ -32,6 +35,9 @@ class ProgressPageBody extends StatelessWidget {
   final int proteinAverage;
   final int carbohydrateAverage;
   final int fatAverage;
+  final int proteinFilled;
+  final int carbohydrateFilled;
+  final int fatFilled;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +66,9 @@ class ProgressPageBody extends StatelessWidget {
             proteinAverage: proteinAverage,
             carbohydrateAverage: carbohydrateAverage,
             fatAverage: fatAverage,
+            proteinFilled: proteinFilled,
+            carbohydrateFilled: carbohydrateFilled,
+            fatFilled: fatFilled,
           ),
         ),
         const SizedBox(height: AppSpacing.sectionGap),

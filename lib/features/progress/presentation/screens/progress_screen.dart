@@ -1,8 +1,11 @@
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/app/widgets/main_bottom_navigation.dart';
+import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/widgets/calora_screen_scaffold.dart';
+import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/progress/models/progress_date_range.dart';
+import 'package:calora/features/progress/models/progress_goal_metrics.dart';
 import 'package:calora/features/progress/models/water_entry.dart';
 import 'package:calora/features/progress/models/weight_entry.dart';
 import 'package:calora/features/progress/presentation/widgets/progress_page_body.dart';
@@ -25,17 +28,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Widget build(BuildContext context) {
     final diary = context.watch<DiaryProvider>();
     final progress = context.watch<ProgressProvider>();
+    final goals = _goalsFor(context.watch<AuthProvider>().profile?.onboarding);
     final range = _rangeForFilter(DateTime.now());
     final days = range.days;
     final calories = days
         .map((day) => diary.nutritionFor(day).calories.toDouble())
         .toList();
-    final calorieMaximum = calories.fold<double>(
-      0,
-      (maximum, value) => value > maximum ? value : maximum,
-    );
     final normalizedCalories = calories
-        .map((value) => calorieMaximum == 0 ? 0.0 : value / calorieMaximum)
+        .map((value) => goals.calorieChartValue(value.round()))
         .toList();
     final water = days
         .map((day) => _waterFor(progress.waterEntries, day).toDouble())
@@ -59,11 +59,20 @@ class _ProgressScreenState extends State<ProgressScreen> {
         calorieValues: normalizedCalories,
         waterValues: normalizedWater,
         weightValues: weights,
-        labels: days.map(_dayLabel).toList(),
+        labels: _labelsFor(range),
         averageCalories: count == 0 ? 0 : (totals.calories / count).round(),
         proteinAverage: count == 0 ? 0 : (totals.protein / count).round(),
         carbohydrateAverage: count == 0 ? 0 : (totals.carbs / count).round(),
         fatAverage: count == 0 ? 0 : (totals.fat / count).round(),
+        proteinFilled: goals.proteinSegments(
+          count == 0 ? 0 : (totals.protein / count).round(),
+        ),
+        carbohydrateFilled: goals.carbohydrateSegments(
+          count == 0 ? 0 : (totals.carbs / count).round(),
+        ),
+        fatFilled: goals.fatSegments(
+          count == 0 ? 0 : (totals.fat / count).round(),
+        ),
       ),
       bottomNavigationBar: const MainBottomNavigation(
         selectedTab: MainTab.progress,
@@ -169,5 +178,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
       first.month == second.month &&
       first.day == second.day;
 
-  String _dayLabel(DateTime date) => date.day.toString();
+  List<String> _labelsFor(ProgressDateRange range) => switch (_selectedFilter) {
+    1 => range.weekdayLabels,
+    3 || 4 => range.compactDateLabels,
+    _ => range.dayOfMonthLabels,
+  };
+
+  ProgressGoalMetrics _goalsFor(OnboardingDetails? details) =>
+      ProgressGoalMetrics(
+        dailyCalorieTarget: details?.dailyCalorieTarget,
+        proteinGoalGrams: details?.proteinGoalGrams,
+        carbohydrateGoalGrams: details?.carbohydrateGoalGrams,
+        fatGoalGrams: details?.fatGoalGrams,
+      );
 }

@@ -1,6 +1,10 @@
 /// An inclusive-start/exclusive-end period used by the Progress screen.
 class ProgressDateRange {
-  const ProgressDateRange(this.start, this.end);
+  ProgressDateRange(this.start, this.end)
+    : assert(
+        !end.isBefore(start),
+        'The end of a range cannot precede its start.',
+      );
 
   final DateTime start;
   final DateTime end;
@@ -11,6 +15,16 @@ class ProgressDateRange {
     dayCount,
     (index) => start.add(Duration(days: index)),
   );
+
+  /// Labels for a seven-day view, such as `Thu` and `Fri`.
+  List<String> get weekdayLabels => days.map(_weekdayLabel).toList();
+
+  /// Labels for a single calendar month, such as `1` and `15`.
+  List<String> get dayOfMonthLabels =>
+      days.map((day) => day.day.toString()).toList();
+
+  /// Unambiguous labels for longer or arbitrary ranges, such as `15 Jul`.
+  List<String> get compactDateLabels => days.map(_compactDateLabel).toList();
 
   static ProgressDateRange day(DateTime now) {
     final today = _startOfDay(now);
@@ -43,4 +57,17 @@ class ProgressDateRange {
 
   static DateTime _startOfDay(DateTime value) =>
       DateTime(value.year, value.month, value.day);
+
+  static String _weekdayLabel(DateTime day) => const <String>[
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun',
+  ][day.weekday - 1];
+
+  static String _compactDateLabel(DateTime day) =>
+      '${day.day} ${const <String>['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][day.month - 1]}';
 }

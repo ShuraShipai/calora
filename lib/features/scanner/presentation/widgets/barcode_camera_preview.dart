@@ -16,7 +16,7 @@ class BarcodeCameraPreview extends StatelessWidget {
   Widget build(BuildContext context) => MobileScanner(
     controller: controller,
     onDetect: onDetect,
-    errorBuilder: (context, error, child) => ColoredBox(
+    errorBuilder: (context, error) => ColoredBox(
       color: context.colors.scannerEnd,
       child: Center(
         child: Padding(

@@ -26,31 +26,43 @@ Future<T?> showCaloraSheet<T>({
           child: SingleChildScrollView(child: builder(context)),
         ),
       );
-      if (!cardStyle) return Center(child: content);
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.page,
-          AppSpacing.page,
-          AppSpacing.page,
-          AppSpacing.page,
-        ),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppSizes.authContentMaxWidth,
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: Material(
-                color: context.colors.surface,
-                borderRadius: AppRadii.largeBorder,
-                clipBehavior: Clip.antiAlias,
-                child: content,
+      final sheetContent = cardStyle
+          ? Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.page,
+                AppSpacing.page,
+                AppSpacing.page,
+                AppSpacing.page,
               ),
-            ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: AppSizes.authContentMaxWidth,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Material(
+                      color: context.colors.surface,
+                      borderRadius: AppRadii.largeBorder,
+                      clipBehavior: Clip.antiAlias,
+                      child: content,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : Center(child: content);
+
+      return Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Navigator.maybePop(context),
           ),
-        ),
+          sheetContent,
+        ],
       );
     },
   );

@@ -10,7 +10,9 @@ import 'package:calora/features/home/presentation/screens/home_screen.dart';
 import 'package:calora/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:calora/features/onboarding/presentation/screens/splash_screen.dart';
 import 'package:calora/features/profile/presentation/screens/goals_screen.dart';
+import 'package:calora/features/profile/presentation/screens/help_support_screen.dart';
 import 'package:calora/features/profile/presentation/screens/personal_details_screen.dart';
+import 'package:calora/features/profile/presentation/screens/privacy_screen.dart';
 import 'package:calora/features/profile/presentation/screens/profile_screen.dart';
 import 'package:calora/features/profile/presentation/screens/reminders_screen.dart';
 import 'package:calora/features/profile/presentation/screens/units_screen.dart';
@@ -56,5 +58,7 @@ abstract final class AppRouter {
     AppRoutes.reminders: (_) => const RemindersScreen(),
     AppRoutes.units: (_) => const UnitsScreen(),
     AppRoutes.personalDetails: (_) => const PersonalDetailsScreen(),
+    AppRoutes.privacy: (_) => const PrivacyScreen(),
+    AppRoutes.helpSupport: (_) => const HelpSupportScreen(),
   };
 }

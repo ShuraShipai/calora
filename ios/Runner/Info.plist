@@ -27,7 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Calora uses your camera to scan food barcodes.</string>
+	<string>Calora uses your camera to scan food and barcodes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Calora uses a selected meal photo to suggest foods locally.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

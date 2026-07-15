@@ -8,6 +8,8 @@ class ScanItem {
     required this.carbs,
     required this.fat,
     required this.confidence,
+    this.fiber,
+    this.sugar,
   });
 
   final String name;
@@ -17,6 +19,8 @@ class ScanItem {
   final int protein;
   final int carbs;
   final int fat;
+  final int? fiber;
+  final int? sugar;
   final String confidence;
 
   String get details => '$amount $unit · ~$kcal kcal';

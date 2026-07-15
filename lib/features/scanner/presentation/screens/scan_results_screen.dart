@@ -9,14 +9,17 @@ import 'package:calora/features/diary/models/diary_entry.dart';
 import 'package:calora/features/diary/models/diary_food_source.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
+import 'package:calora/features/scanner/models/meal_label_suggestion.dart';
 import 'package:calora/features/scanner/models/scan_item.dart';
 import 'package:calora/features/scanner/models/scanner_request.dart';
+import 'package:calora/features/scanner/presentation/widgets/meal_label_suggestions.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_estimate_notice.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_food_sheet.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_items_list.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_meal_picker.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_nutrition_summary.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_result_image.dart';
+import 'package:calora/features/scanner/presentation/widgets/usda_food_confirmation_sheet.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +96,8 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
             protein: item.protein,
             carbs: item.carbs,
             fat: item.fat,
+            fiber: item.fiber,
+            sugar: item.sugar,
             loggedAt: DateTime.now(),
             source: request.mode == ScannerMode.barcode
                 ? DiaryFoodSource.barcode
@@ -116,6 +121,8 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
   Future<void> _editItem(int? index) async {
     final result = await showCaloraSheet<ScanItemEditResult>(
       context: context,
+      showDragHandle: false,
+      cardStyle: true,
       builder: (context) =>
           ScanFoodSheet(item: index == null ? null : _items[index]),
     );
@@ -140,6 +147,14 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
       child: ListView(
         children: <Widget>[
           const CaloraSection(child: ScanResultImage()),
+          if (request.mealLabelSuggestions.isNotEmpty)
+            CaloraSection(
+              child: MealLabelSuggestions(
+                suggestions: request.mealLabelSuggestions,
+                onSelected: (suggestion) =>
+                    unawaited(_addSuggestion(suggestion)),
+              ),
+            ),
           CaloraSection(child: ScanNutritionSummary(items: _items)),
           const CaloraSection(child: ScanEstimateNotice()),
           CaloraSection(
@@ -198,5 +213,14 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _addSuggestion(MealLabelSuggestion suggestion) async {
+    final item = await showCaloraSheet<ScanItem>(
+      context: context,
+      builder: (context) => UsdaFoodConfirmationSheet(suggestion: suggestion),
+    );
+    if (!mounted || item == null) return;
+    setState(() => _items.add(item));
   }
 }

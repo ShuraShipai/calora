@@ -14,7 +14,7 @@ class BarcodeScannerService {
           BarcodeFormat.code128,
           BarcodeFormat.code39,
           BarcodeFormat.code93,
-          BarcodeFormat.itf,
+          BarcodeFormat.itf14,
         ],
         detectionSpeed: DetectionSpeed.noDuplicates,
       );

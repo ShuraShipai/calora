@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:calora/app/router/app_routes.dart';
-import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_page.dart';
+import 'package:calora/features/scanner/models/meal_image.dart';
 import 'package:calora/features/scanner/models/scanner_request.dart';
 import 'package:calora/features/scanner/presentation/widgets/barcode_camera_preview.dart';
+import 'package:calora/features/scanner/presentation/widgets/meal_camera_preview.dart';
 import 'package:calora/features/scanner/presentation/widgets/scanner_preview.dart';
+import 'package:calora/features/scanner/providers/meal_capture_provider.dart';
 import 'package:calora/features/scanner/providers/scanner_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -20,35 +22,69 @@ class ScannerScreen extends StatefulWidget {
 }
 
 class _ScannerScreenState extends State<ScannerScreen> {
-  bool _analysing = false;
-  Timer? _timer;
   ScannerRequest? _request;
+  final _mealCameraController = MealCameraCaptureController();
+  bool _mealFlashEnabled = false;
 
   ScannerRequest get request => _request ?? const ScannerRequest.meal();
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _capture() {
+  void _captureBarcode() {
     if (request.mode == ScannerMode.barcode) {
       showCaloraMessage(
         context,
         'Scanning automatically when a barcode is in view.',
       );
+    }
+  }
+
+  Future<void> _captureMeal(MealImageSource source) async {
+    final mealCapture = context.read<MealCaptureProvider>();
+    await mealCapture.capture(source);
+    await _showMealResult(mealCapture);
+  }
+
+  Future<void> _captureMealFromCamera() async {
+    try {
+      await _mealCameraController.capture();
+    } on Object {
+      if (mounted) {
+        showCaloraMessage(context, 'Could not capture a meal photo.');
+      }
+    }
+  }
+
+  Future<void> _analyseCapturedMeal(MealImage image) async {
+    final mealCapture = context.read<MealCaptureProvider>();
+    await mealCapture.analyse(image);
+    await _showMealResult(mealCapture);
+  }
+
+  Future<void> _showMealResult(MealCaptureProvider mealCapture) async {
+    if (!mounted) return;
+    final image = mealCapture.image;
+    if (image == null) {
+      showCaloraMessage(
+        context,
+        mealCapture.errorMessage ?? 'Could not capture a meal photo.',
+      );
       return;
     }
-    if (_analysing) return;
-    setState(() => _analysing = true);
-    _timer = Timer(AppDurations.scannerAnalysis, () {
-      if (!mounted) return;
-      setState(() => _analysing = false);
-      unawaited(
-        Navigator.pushNamed(context, AppRoutes.scanResults, arguments: request),
+    final result = mealCapture.result;
+    if (result == null || !result.isAvailable) {
+      showCaloraMessage(
+        context,
+        result?.unavailableMessage ??
+            'No food could be identified from this photo.',
       );
-    });
+      mealCapture.clear();
+      return;
+    }
+    await Navigator.pushNamed(
+      context,
+      AppRoutes.scanResults,
+      arguments: request.withMealScan(image: image, suggestions: result.labels),
+    );
+    if (mounted) mealCapture.clear();
   }
 
   Future<void> _onBarcodeDetected(BarcodeCapture capture) async {
@@ -69,26 +105,33 @@ class _ScannerScreenState extends State<ScannerScreen> {
   @override
   Widget build(BuildContext context) {
     _request ??= ModalRoute.of(context)?.settings.arguments as ScannerRequest?;
-    return Consumer<ScannerProvider>(
-      builder: (context, scanner, _) => CaloraPage(
+    return Consumer2<ScannerProvider, MealCaptureProvider>(
+      builder: (context, scanner, mealCapture, _) => CaloraPage(
         screenId: 'scanner',
         backgroundColor: context.colors.scannerEnd,
         child: ScannerPreview(
-          analysing: _analysing || scanner.isProcessingBarcode,
-          flashEnabled: scanner.flashEnabled,
+          analysing: mealCapture.isLoading || scanner.isProcessingBarcode,
+          flashEnabled: request.mode == ScannerMode.meal
+              ? _mealFlashEnabled
+              : scanner.flashEnabled,
           onClose: () {
             unawaited(scanner.stop());
             Navigator.maybePop(context);
           },
-          onFlash: () => unawaited(scanner.toggleFlash()),
-          onGallery: () => showCaloraMessage(
-            context,
-            'Gallery picker will be connected later.',
-          ),
-          onCapture: _capture,
+          onFlash: request.mode == ScannerMode.meal
+              ? () => unawaited(_toggleMealFlash())
+              : () => unawaited(scanner.toggleFlash()),
+          onGallery: request.mode == ScannerMode.meal
+              ? () => unawaited(_captureMeal(MealImageSource.gallery))
+              : () => showCaloraMessage(
+                  context,
+                  'Choose a barcode with the camera.',
+                ),
+          onCapture: request.mode == ScannerMode.meal
+              ? () => unawaited(_captureMealFromCamera())
+              : _captureBarcode,
           onCancel: () {
-            _timer?.cancel();
-            setState(() => _analysing = false);
+            mealCapture.clear();
             if (request.mode == ScannerMode.barcode) {
               unawaited(scanner.resumeBarcodeScanning());
             }
@@ -99,9 +142,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   controller: scanner.controller,
                   onDetect: (capture) => unawaited(_onBarcodeDetected(capture)),
                 )
-              : null,
+              : MealCameraPreview(
+                  captureController: _mealCameraController,
+                  onCaptured: (image) => unawaited(_analyseCapturedMeal(image)),
+                ),
         ),
       ),
     );
+  }
+
+  Future<void> _toggleMealFlash() async {
+    final enabled = await _mealCameraController.toggleFlash();
+    if (mounted) setState(() => _mealFlashEnabled = enabled);
   }
 }

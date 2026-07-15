@@ -26,6 +26,9 @@ class HomeScreen extends StatelessWidget {
     final dashboard = _dashboardFor(
       diary: diary,
       calorieGoal: profile?.onboarding?.dailyCalorieTarget ?? 0,
+      proteinGoal: profile?.onboarding?.proteinGoalGrams ?? 0,
+      carbohydrateGoal: profile?.onboarding?.carbohydrateGoalGrams ?? 0,
+      fatGoal: profile?.onboarding?.fatGoalGrams ?? 0,
     );
     return CaloraPage(
       screenId: 'home',
@@ -57,6 +60,9 @@ class HomeScreen extends StatelessWidget {
   HomeDashboard _dashboardFor({
     required DiaryProvider diary,
     required int calorieGoal,
+    required int proteinGoal,
+    required int carbohydrateGoal,
+    required int fatGoal,
   }) {
     final nutrition = diary.nutritionToday;
     final today = DateTime.now();
@@ -64,11 +70,11 @@ class HomeScreen extends StatelessWidget {
       calorieGoal: calorieGoal,
       caloriesEaten: nutrition.calories,
       proteinGrams: nutrition.protein,
-      proteinGoalGrams: 0,
+      proteinGoalGrams: proteinGoal,
       carbohydratesGrams: nutrition.carbs,
-      carbohydratesGoalGrams: 0,
+      carbohydratesGoalGrams: carbohydrateGoal,
       fatGrams: nutrition.fat,
-      fatGoalGrams: 0,
+      fatGoalGrams: fatGoal,
       waterMillilitres: 0,
       meals: Map<HomeMealType, HomeMealSummary>.unmodifiable(
         <HomeMealType, HomeMealSummary>{

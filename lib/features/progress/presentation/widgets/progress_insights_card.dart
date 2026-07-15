@@ -13,6 +13,9 @@ class ProgressInsightsCard extends StatelessWidget {
     required this.proteinAverage,
     required this.carbohydrateAverage,
     required this.fatAverage,
+    required this.proteinFilled,
+    required this.carbohydrateFilled,
+    required this.fatFilled,
   });
 
   final List<double> calorieValues;
@@ -21,6 +24,9 @@ class ProgressInsightsCard extends StatelessWidget {
   final int proteinAverage;
   final int carbohydrateAverage;
   final int fatAverage;
+  final int proteinFilled;
+  final int carbohydrateFilled;
+  final int fatFilled;
 
   @override
   Widget build(BuildContext context) {
@@ -64,21 +70,21 @@ class ProgressInsightsCard extends StatelessWidget {
           CaloraMacroMeter(
             label: 'Protein',
             value: 'avg ${proteinAverage}g',
-            filled: _filled(proteinAverage),
+            filled: proteinFilled,
             color: context.colors.protein,
           ),
           const SizedBox(height: AppSpacing.xxl),
           CaloraMacroMeter(
             label: 'Carbohydrates',
             value: 'avg ${carbohydrateAverage}g',
-            filled: _filled(carbohydrateAverage),
+            filled: carbohydrateFilled,
             color: context.colors.carb,
           ),
           const SizedBox(height: AppSpacing.xxl),
           CaloraMacroMeter(
             label: 'Fat',
             value: 'avg ${fatAverage}g',
-            filled: _filled(fatAverage),
+            filled: fatFilled,
             color: context.colors.fat,
           ),
         ],
@@ -92,6 +98,4 @@ class ProgressInsightsCard extends StatelessWidget {
         fontWeight: AppFontWeights.bold,
         letterSpacing: AppSpacing.xxs,
       );
-
-  int _filled(int grams) => (grams / 10).round().clamp(0, 8);
 }

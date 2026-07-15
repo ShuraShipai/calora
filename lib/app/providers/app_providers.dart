@@ -1,5 +1,7 @@
 import 'package:calora/app/providers/theme_provider.dart';
 import 'package:calora/app/services/theme_preferences_service.dart';
+import 'package:calora/core/network/network_client.dart';
+import 'package:calora/core/network/network_connectivity_service.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/auth/services/auth_service.dart';
 import 'package:calora/features/auth/services/user_profile_service.dart';
@@ -10,9 +12,14 @@ import 'package:calora/features/home/services/home_dashboard_service.dart';
 import 'package:calora/features/progress/providers/progress_provider.dart';
 import 'package:calora/features/progress/services/progress_service.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
+import 'package:calora/features/scanner/providers/meal_capture_provider.dart';
 import 'package:calora/features/scanner/providers/scanner_provider.dart';
+import 'package:calora/features/scanner/providers/usda_nutrition_lookup_provider.dart';
 import 'package:calora/features/scanner/services/barcode_scanner_service.dart';
 import 'package:calora/features/scanner/services/food_product_lookup_service.dart';
+import 'package:calora/features/scanner/services/meal_image_capture_service.dart';
+import 'package:calora/features/scanner/services/meal_label_suggestion_service.dart';
+import 'package:calora/features/scanner/services/usda_food_nutrition_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -35,10 +42,29 @@ List<SingleChildWidget> appProviders({
   ),
   Provider<DiaryService>(create: (_) => FirestoreDiaryService()),
   Provider<ProgressService>(create: (_) => FirestoreProgressService()),
+  Provider<NetworkConnectivityService>(
+    create: (_) => ConnectivityPlusNetworkConnectivityService(),
+  ),
+  Provider<NetworkClient>(
+    create: (context) => DioNetworkClient(
+      connectivity: context.read<NetworkConnectivityService>(),
+    ),
+  ),
   Provider<FoodProductLookupService>(
-    create: (_) => OpenFoodFactsProductLookupService(),
+    create: (context) => OpenFoodFactsProductLookupService(
+      networkClient: context.read<NetworkClient>(),
+    ),
   ),
   Provider<BarcodeScannerService>(create: (_) => BarcodeScannerService()),
+  Provider<MealImageCaptureService>(
+    create: (_) => ImagePickerMealImageCaptureService(),
+  ),
+  Provider<MealLabelSuggestionService>(
+    create: (_) => MlKitMealLabelSuggestionService(),
+  ),
+  Provider<UsdaFoodNutritionService>(
+    create: (_) => FoodDataCentralNutritionService(),
+  ),
   ChangeNotifierProvider<AuthProvider>(
     create: (context) => AuthProvider(
       context.read<AuthService>(),
@@ -63,5 +89,15 @@ List<SingleChildWidget> appProviders({
   ),
   ChangeNotifierProvider<ScannerProvider>(
     create: (context) => ScannerProvider(context.read<BarcodeScannerService>()),
+  ),
+  ChangeNotifierProvider<MealCaptureProvider>(
+    create: (context) => MealCaptureProvider(
+      context.read<MealImageCaptureService>(),
+      context.read<MealLabelSuggestionService>(),
+    ),
+  ),
+  ChangeNotifierProvider<UsdaNutritionLookupProvider>(
+    create: (context) =>
+        UsdaNutritionLookupProvider(context.read<UsdaFoodNutritionService>()),
   ),
 ];

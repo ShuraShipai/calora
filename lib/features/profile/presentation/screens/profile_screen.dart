@@ -69,7 +69,7 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const ProfileSection(
+            ProfileSection(
               title: 'Data & support',
               child: CaloraGroupedList(
                 children: <Widget>[
@@ -77,10 +77,17 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.file_download_outlined,
                     title: 'Export my data',
                   ),
-                  CaloraListRow(icon: Icons.lock_outline, title: 'Privacy'),
+                  CaloraListRow(
+                    icon: Icons.lock_outline,
+                    title: 'Privacy',
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.privacy),
+                  ),
                   CaloraListRow(
                     icon: Icons.help_outline,
                     title: 'Help & support',
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.helpSupport),
                   ),
                 ],
               ),

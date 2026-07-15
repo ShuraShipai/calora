@@ -167,6 +167,8 @@ class _ScanFoodSheetState extends State<ScanFoodSheet> {
           protein: int.tryParse(_protein.text) ?? 0,
           carbs: int.tryParse(_carbs.text) ?? 0,
           fat: int.tryParse(_fat.text) ?? 0,
+          fiber: widget.item?.fiber,
+          sugar: widget.item?.sugar,
           confidence: 'High',
         ),
       ),
