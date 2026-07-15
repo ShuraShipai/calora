@@ -13,6 +13,12 @@ class CustomFoodForm extends StatelessWidget {
     required this.caloriesController,
     required this.servingQuantityController,
     required this.servingUnitController,
+    required this.proteinController,
+    required this.carbsController,
+    required this.fatController,
+    required this.fiberController,
+    required this.sugarController,
+    required this.noteController,
     required this.loggedAt,
     required this.onSelectDate,
     required this.onSelectTime,
@@ -25,6 +31,12 @@ class CustomFoodForm extends StatelessWidget {
   final TextEditingController caloriesController;
   final TextEditingController servingQuantityController;
   final TextEditingController servingUnitController;
+  final TextEditingController proteinController;
+  final TextEditingController carbsController;
+  final TextEditingController fatController;
+  final TextEditingController fiberController;
+  final TextEditingController sugarController;
+  final TextEditingController noteController;
   final DateTime loggedAt;
   final VoidCallback onSelectDate;
   final VoidCallback onSelectTime;
@@ -74,10 +86,11 @@ class CustomFoodForm extends StatelessWidget {
           const SizedBox(height: AppSpacing.xxl),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const <Widget>[
+            children: <Widget>[
               Expanded(
                 child: CaloraLabeledField(
                   label: 'Protein (g)',
+                  controller: proteinController,
                   keyboardType: TextInputType.number,
                 ),
               ),
@@ -85,6 +98,7 @@ class CustomFoodForm extends StatelessWidget {
               Expanded(
                 child: CaloraLabeledField(
                   label: 'Carbs (g)',
+                  controller: carbsController,
                   keyboardType: TextInputType.number,
                 ),
               ),
@@ -92,6 +106,7 @@ class CustomFoodForm extends StatelessWidget {
               Expanded(
                 child: CaloraLabeledField(
                   label: 'Fat (g)',
+                  controller: fatController,
                   keyboardType: TextInputType.number,
                 ),
               ),
@@ -99,12 +114,14 @@ class CustomFoodForm extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xxl),
           _fieldRow(
-            const CaloraLabeledField(
+            CaloraLabeledField(
               label: 'Fiber (g)',
+              controller: fiberController,
               keyboardType: TextInputType.number,
             ),
-            const CaloraLabeledField(
+            CaloraLabeledField(
               label: 'Sugar (g)',
+              controller: sugarController,
               keyboardType: TextInputType.number,
             ),
           ),
@@ -141,9 +158,10 @@ class CustomFoodForm extends StatelessWidget {
             onSelectTime: onSelectTime,
           ),
           const SizedBox(height: AppSpacing.xxl),
-          const CaloraLabeledField(
+          CaloraLabeledField(
             label: 'Note (optional)',
             hint: 'Add a note',
+            controller: noteController,
           ),
         ],
       ),

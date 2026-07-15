@@ -1,3 +1,4 @@
+import 'package:calora/features/diary/models/diary_entry.dart';
 import 'package:flutter/material.dart';
 
 class DiaryFoodData {
@@ -5,11 +6,13 @@ class DiaryFoodData {
     required this.name,
     required this.details,
     required this.calories,
+    required this.entry,
   });
 
   final String name;
   final String details;
   final String calories;
+  final DiaryEntry entry;
 }
 
 class DiaryMealData {

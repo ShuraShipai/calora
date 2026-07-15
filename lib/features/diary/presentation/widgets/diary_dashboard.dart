@@ -4,8 +4,8 @@ import 'package:calora/core/widgets/calora_metrics.dart';
 import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/diary/models/diary_entry.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
-import 'package:calora/features/diary/presentation/widgets/diary_day_section.dart';
 import 'package:calora/features/diary/presentation/widgets/diary_data.dart';
+import 'package:calora/features/diary/presentation/widgets/diary_day_section.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:flutter/material.dart';
 
@@ -22,8 +22,9 @@ class DiaryDashboard extends StatelessWidget {
             .toList()
           ..sort((a, b) => b.compareTo(a));
     final today = DateUtils.dateOnly(DateTime.now());
-    if (!dates.any((date) => DateUtils.isSameDay(date, today)))
+    if (!dates.any((date) => DateUtils.isSameDay(date, today))) {
       dates.insert(0, today);
+    }
     return Column(
       children: <Widget>[
         CaloraSection(
@@ -97,6 +98,7 @@ class DiaryDashboard extends StatelessWidget {
     details:
         '${entry.serving} · P ${entry.protein}g · C ${entry.carbs}g · F ${entry.fat}g',
     calories: '${entry.calories}',
+    entry: entry,
   );
   IconData _icon(MealType type) => switch (type) {
     MealType.breakfast => Icons.wb_sunny_outlined,

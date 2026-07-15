@@ -5,13 +5,17 @@ import 'package:flutter/material.dart';
 Future<T?> showCaloraSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
+  bool showDragHandle = true,
+  bool cardStyle = false,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (context) => Center(
-      child: ConstrainedBox(
+    showDragHandle: showDragHandle,
+    backgroundColor: cardStyle ? Colors.transparent : null,
+    builder: (context) {
+      final content = ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: AppSizes.authContentMaxWidth,
         ),
@@ -21,8 +25,34 @@ Future<T?> showCaloraSheet<T>({
           ),
           child: SingleChildScrollView(child: builder(context)),
         ),
-      ),
-    ),
+      );
+      if (!cardStyle) return Center(child: content);
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.page,
+          AppSpacing.page,
+          AppSpacing.page,
+          AppSpacing.page,
+        ),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppSizes.authContentMaxWidth,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Material(
+                color: context.colors.surface,
+                borderRadius: AppRadii.largeBorder,
+                clipBehavior: Clip.antiAlias,
+                child: content,
+              ),
+            ),
+          ),
+        ),
+      );
+    },
   );
 }
 
