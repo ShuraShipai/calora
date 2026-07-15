@@ -1,21 +1,18 @@
+import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_calorie_target.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_selection_card.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_step_heading.dart';
+import 'package:calora/features/onboarding/providers/onboarding_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class OnboardingUnitsStep extends StatefulWidget {
+class OnboardingUnitsStep extends StatelessWidget {
   const OnboardingUnitsStep({super.key});
 
   @override
-  State<OnboardingUnitsStep> createState() => _OnboardingUnitsStepState();
-}
-
-class _OnboardingUnitsStepState extends State<OnboardingUnitsStep> {
-  int _selected = 0;
-
-  @override
   Widget build(BuildContext context) {
+    final onboarding = context.watch<OnboardingProvider>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -30,8 +27,8 @@ class _OnboardingUnitsStepState extends State<OnboardingUnitsStep> {
                 title: 'Metric',
                 subtitle: 'kg · cm',
                 centered: true,
-                selected: _selected == 0,
-                onTap: () => setState(() => _selected = 0),
+                selected: onboarding.unitSystem == UnitSystem.metric,
+                onTap: () => onboarding.selectUnitSystem(UnitSystem.metric),
               ),
             ),
             const SizedBox(width: AppSpacing.lg),
@@ -40,8 +37,8 @@ class _OnboardingUnitsStepState extends State<OnboardingUnitsStep> {
                 title: 'Imperial',
                 subtitle: 'lb · ft/in',
                 centered: true,
-                selected: _selected == 1,
-                onTap: () => setState(() => _selected = 1),
+                selected: onboarding.unitSystem == UnitSystem.imperial,
+                onTap: () => onboarding.selectUnitSystem(UnitSystem.imperial),
               ),
             ),
           ],

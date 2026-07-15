@@ -1,17 +1,13 @@
+import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_selection_card.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_step_heading.dart';
+import 'package:calora/features/onboarding/providers/onboarding_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class OnboardingActivityStep extends StatefulWidget {
+class OnboardingActivityStep extends StatelessWidget {
   const OnboardingActivityStep({super.key});
-
-  @override
-  State<OnboardingActivityStep> createState() => _OnboardingActivityStepState();
-}
-
-class _OnboardingActivityStepState extends State<OnboardingActivityStep> {
-  int _selected = 0;
 
   static const _options = <(String, String, IconData)>[
     ('Sedentary', 'Little to no exercise', Icons.chair_outlined),
@@ -22,6 +18,7 @@ class _OnboardingActivityStepState extends State<OnboardingActivityStep> {
 
   @override
   Widget build(BuildContext context) {
+    final onboarding = context.watch<OnboardingProvider>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -34,8 +31,8 @@ class _OnboardingActivityStepState extends State<OnboardingActivityStep> {
             title: _options[index].$1,
             subtitle: _options[index].$2,
             icon: _options[index].$3,
-            selected: _selected == index,
-            onTap: () => setState(() => _selected = index),
+            selected: onboarding.activityLevel == ActivityLevel.values[index],
+            onTap: () => onboarding.selectActivity(ActivityLevel.values[index]),
           ),
           if (index != _options.length - 1)
             const SizedBox(height: AppSpacing.lg),

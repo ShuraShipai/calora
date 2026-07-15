@@ -6,15 +6,19 @@ class OnboardingTextField extends StatelessWidget {
   const OnboardingTextField({
     super.key,
     required this.label,
-    required this.initialValue,
+    this.initialValue,
     this.hint,
     this.keyboardType,
+    this.onChanged,
+    this.validator,
   });
 
   final String label;
-  final String initialValue;
+  final String? initialValue;
   final String? hint;
   final TextInputType? keyboardType;
+  final ValueChanged<String>? onChanged;
+  final FormFieldValidator<String>? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +33,8 @@ class OnboardingTextField extends StatelessWidget {
             initialValue: initialValue,
             decoration: InputDecoration(hintText: hint),
             keyboardType: keyboardType,
+            onChanged: onChanged,
+            validator: validator,
             style: context.textTheme.bodyLarge?.copyWith(
               fontSize: AppFontSizes.input,
             ),

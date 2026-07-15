@@ -18,8 +18,13 @@ class OnboardingDetails {
     this.targetWeightKg,
     this.activityLevel,
     this.goal,
-    this.unitSystem = UnitSystem.metric,
-    this.dailyCalorieTarget = 1840,
+    this.unitSystem,
+    this.dailyCalorieTarget,
+    this.proteinGoalGrams,
+    this.carbohydrateGoalGrams,
+    this.fatGoalGrams,
+    this.waterGoalLiters,
+    this.weeklyWeightGoalKg,
   });
 
   final int? age;
@@ -28,19 +33,63 @@ class OnboardingDetails {
   final double? targetWeightKg;
   final ActivityLevel? activityLevel;
   final WellnessGoal? goal;
-  final UnitSystem unitSystem;
-  final int dailyCalorieTarget;
+  final UnitSystem? unitSystem;
+  final int? dailyCalorieTarget;
+  final int? proteinGoalGrams;
+  final int? carbohydrateGoalGrams;
+  final int? fatGoalGrams;
+  final double? waterGoalLiters;
+  final double? weeklyWeightGoalKg;
 
   Map<String, Object?> toMap() => <String, Object?>{
-    'age': age,
-    'heightCm': heightCm,
-    'currentWeightKg': currentWeightKg,
-    'targetWeightKg': targetWeightKg,
-    'activityLevel': activityLevel?.name,
-    'goal': goal?.name,
-    'unitSystem': unitSystem.name,
-    'dailyCalorieTarget': dailyCalorieTarget,
+    if (age != null) 'age': age,
+    if (heightCm != null) 'heightCm': heightCm,
+    if (currentWeightKg != null) 'currentWeightKg': currentWeightKg,
+    if (targetWeightKg != null) 'targetWeightKg': targetWeightKg,
+    if (activityLevel != null) 'activityLevel': activityLevel!.name,
+    if (goal != null) 'goal': goal!.name,
+    if (unitSystem != null) 'unitSystem': unitSystem!.name,
+    if (dailyCalorieTarget != null) 'dailyCalorieTarget': dailyCalorieTarget,
+    if (proteinGoalGrams != null) 'proteinGoalGrams': proteinGoalGrams,
+    if (carbohydrateGoalGrams != null)
+      'carbohydrateGoalGrams': carbohydrateGoalGrams,
+    if (fatGoalGrams != null) 'fatGoalGrams': fatGoalGrams,
+    if (waterGoalLiters != null) 'waterGoalLiters': waterGoalLiters,
+    if (weeklyWeightGoalKg != null) 'weeklyWeightGoalKg': weeklyWeightGoalKg,
   };
+
+  OnboardingDetails copyWith({
+    int? age,
+    double? heightCm,
+    double? currentWeightKg,
+    double? targetWeightKg,
+    ActivityLevel? activityLevel,
+    WellnessGoal? goal,
+    UnitSystem? unitSystem,
+    int? dailyCalorieTarget,
+    int? proteinGoalGrams,
+    int? carbohydrateGoalGrams,
+    int? fatGoalGrams,
+    double? waterGoalLiters,
+    double? weeklyWeightGoalKg,
+  }) {
+    return OnboardingDetails(
+      age: age ?? this.age,
+      heightCm: heightCm ?? this.heightCm,
+      currentWeightKg: currentWeightKg ?? this.currentWeightKg,
+      targetWeightKg: targetWeightKg ?? this.targetWeightKg,
+      activityLevel: activityLevel ?? this.activityLevel,
+      goal: goal ?? this.goal,
+      unitSystem: unitSystem ?? this.unitSystem,
+      dailyCalorieTarget: dailyCalorieTarget ?? this.dailyCalorieTarget,
+      proteinGoalGrams: proteinGoalGrams ?? this.proteinGoalGrams,
+      carbohydrateGoalGrams:
+          carbohydrateGoalGrams ?? this.carbohydrateGoalGrams,
+      fatGoalGrams: fatGoalGrams ?? this.fatGoalGrams,
+      waterGoalLiters: waterGoalLiters ?? this.waterGoalLiters,
+      weeklyWeightGoalKg: weeklyWeightGoalKg ?? this.weeklyWeightGoalKg,
+    );
+  }
 }
 
 class UserProfile {
@@ -56,15 +105,21 @@ class UserProfile {
   factory UserProfile.fromMap(String uid, Map<String, dynamic> data) {
     final activity = _enumByName(ActivityLevel.values, data['activityLevel']);
     final goal = _enumByName(WellnessGoal.values, data['goal']);
-    final unit =
-        _enumByName(UnitSystem.values, data['unitSystem']) ?? UnitSystem.metric;
+    final unit = _enumByName(UnitSystem.values, data['unitSystem']);
     final hasOnboardingData =
         data['age'] != null ||
         data['heightCm'] != null ||
         data['currentWeightKg'] != null ||
         data['targetWeightKg'] != null ||
         activity != null ||
-        goal != null;
+        goal != null ||
+        data['unitSystem'] != null ||
+        data['dailyCalorieTarget'] != null ||
+        data['proteinGoalGrams'] != null ||
+        data['carbohydrateGoalGrams'] != null ||
+        data['fatGoalGrams'] != null ||
+        data['waterGoalLiters'] != null ||
+        data['weeklyWeightGoalKg'] != null;
 
     return UserProfile(
       uid: uid,
@@ -81,8 +136,14 @@ class UserProfile {
               activityLevel: activity,
               goal: goal,
               unitSystem: unit,
-              dailyCalorieTarget:
-                  (data['dailyCalorieTarget'] as num?)?.toInt() ?? 1840,
+              dailyCalorieTarget: (data['dailyCalorieTarget'] as num?)?.toInt(),
+              proteinGoalGrams: (data['proteinGoalGrams'] as num?)?.toInt(),
+              carbohydrateGoalGrams: (data['carbohydrateGoalGrams'] as num?)
+                  ?.toInt(),
+              fatGoalGrams: (data['fatGoalGrams'] as num?)?.toInt(),
+              waterGoalLiters: (data['waterGoalLiters'] as num?)?.toDouble(),
+              weeklyWeightGoalKg: (data['weeklyWeightGoalKg'] as num?)
+                  ?.toDouble(),
             )
           : null,
     );

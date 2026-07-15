@@ -54,11 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
                           Navigator.pushNamed(context, AppRoutes.login),
                       onSignUp: () =>
                           Navigator.pushNamed(context, AppRoutes.signUp),
-                      onGuest: () => Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        AppRoutes.onboarding,
-                        (_) => false,
-                      ),
                     ),
                   ),
               ],

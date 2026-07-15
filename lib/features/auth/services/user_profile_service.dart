@@ -10,6 +10,12 @@ abstract interface class UserProfileService {
     required String name,
     required OnboardingDetails details,
   });
+  Future<UserProfile> updateProfile({
+    required UserProfile profile,
+    required String name,
+    required OnboardingDetails details,
+  });
+  Future<void> delete(String uid);
 }
 
 class FirestoreUserProfileService implements UserProfileService {
@@ -81,6 +87,24 @@ class FirestoreUserProfileService implements UserProfileService {
       onboarding: details,
     );
   }
+
+  @override
+  Future<UserProfile> updateProfile({
+    required UserProfile profile,
+    required String name,
+    required OnboardingDetails details,
+  }) async {
+    final resolvedName = name.trim().isEmpty ? profile.name : name.trim();
+    await _users.doc(profile.uid).set(<String, Object?>{
+      'name': resolvedName,
+      ...details.toMap(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    return profile.copyWith(name: resolvedName, onboarding: details);
+  }
+
+  @override
+  Future<void> delete(String uid) => _users.doc(uid).delete();
 
   String _resolvedName(User user, String? requestedName) {
     final explicit = requestedName?.trim();

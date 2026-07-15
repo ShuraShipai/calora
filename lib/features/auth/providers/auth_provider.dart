@@ -50,9 +50,6 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
-  Future<bool> continueAsGuest() =>
-      _runCredentialTask(_authService.signInAnonymously);
-
   Future<bool> sendPasswordResetEmail(String email) async {
     return _runTask(() => _authService.sendPasswordResetEmail(email));
   }
@@ -76,6 +73,24 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
+  Future<bool> updateProfile({
+    required String name,
+    required OnboardingDetails details,
+  }) async {
+    final current = _profile;
+    if (current == null) {
+      _setError('Your session has expired. Please sign in again.');
+      return false;
+    }
+    return _runTask(() async {
+      _profile = await _profileService.updateProfile(
+        profile: current,
+        name: name,
+        details: details,
+      );
+    });
+  }
+
   Future<void> signOut() async {
     _setBusy(true);
     try {
@@ -88,6 +103,20 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _setBusy(false);
     }
+  }
+
+  Future<bool> deleteAccount() async {
+    final profile = _profile;
+    if (profile == null) {
+      _setError('Your session has expired. Please sign in again.');
+      return false;
+    }
+    return _runTask(() async {
+      await _profileService.delete(profile.uid);
+      await _authService.deleteAccount();
+      _profile = null;
+      _status = AuthStatus.unauthenticated;
+    });
   }
 
   void clearError() {
@@ -186,6 +215,8 @@ class AuthProvider extends ChangeNotifier {
       'unavailable' => 'Check your internet connection and try again.',
       'permission-denied' =>
         'We could not save your profile. Please try again.',
+      'requires-recent-login' =>
+        'Please sign in again before deleting your account.',
       _ => 'Something went wrong. Please try again.',
     };
   }

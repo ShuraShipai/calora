@@ -20,8 +20,6 @@ class FakeAuthService implements AuthService {
   }) => throw UnimplementedError();
 
   @override
-  Future<UserCredential> signInAnonymously() => throw UnimplementedError();
-
   @override
   Future<UserCredential> signUp({
     required String name,
@@ -31,6 +29,9 @@ class FakeAuthService implements AuthService {
 
   @override
   Future<void> signOut() async {}
+
+  @override
+  Future<void> deleteAccount() async {}
 }
 
 class FakeUserProfileService implements UserProfileService {
@@ -48,9 +49,19 @@ class FakeUserProfileService implements UserProfileService {
   }
 
   @override
+  Future<UserProfile> updateProfile({
+    required UserProfile profile,
+    required String name,
+    required OnboardingDetails details,
+  }) async => profile.copyWith(name: name, onboarding: details);
+
+  @override
   Future<UserProfile> ensureProfile(User user, {String? name}) =>
       throw UnimplementedError();
 
   @override
   Future<UserProfile?> fetch(String uid) async => null;
+
+  @override
+  Future<void> delete(String uid) async {}
 }

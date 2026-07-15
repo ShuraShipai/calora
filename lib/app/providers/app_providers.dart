@@ -6,6 +6,8 @@ import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/diary/services/diary_service.dart';
 import 'package:calora/features/home/providers/home_provider.dart';
 import 'package:calora/features/home/services/home_dashboard_service.dart';
+import 'package:calora/features/progress/providers/progress_provider.dart';
+import 'package:calora/features/progress/services/progress_service.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -17,6 +19,7 @@ final List<SingleChildWidget> appProviders = <SingleChildWidget>[
     create: (_) => FirestoreHomeDashboardService(),
   ),
   Provider<DiaryService>(create: (_) => FirestoreDiaryService()),
+  Provider<ProgressService>(create: (_) => FirestoreProgressService()),
   ChangeNotifierProvider<AuthProvider>(
     create: (context) => AuthProvider(
       context.read<AuthService>(),
@@ -30,5 +33,9 @@ final List<SingleChildWidget> appProviders = <SingleChildWidget>[
   ChangeNotifierProxyProvider<AuthProvider, DiaryProvider>(
     create: (context) => DiaryProvider(context.read<DiaryService>()),
     update: (_, auth, diary) => diary!..updateUser(auth.profile),
+  ),
+  ChangeNotifierProxyProvider<AuthProvider, ProgressProvider>(
+    create: (context) => ProgressProvider(context.read<ProgressService>()),
+    update: (_, auth, progress) => progress!..updateUser(auth.profile),
   ),
 ];

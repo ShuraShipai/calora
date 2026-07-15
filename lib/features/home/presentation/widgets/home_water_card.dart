@@ -8,9 +8,14 @@ import 'package:calora/features/home/models/home_dashboard.dart';
 import 'package:flutter/material.dart';
 
 class HomeWaterCard extends StatelessWidget {
-  const HomeWaterCard({super.key, required this.dashboard});
+  const HomeWaterCard({
+    super.key,
+    required this.dashboard,
+    this.waterMillilitres,
+  });
 
   final HomeDashboard dashboard;
+  final int? waterMillilitres;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,9 @@ class HomeWaterCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${dashboard.waterMillilitres} ml',
+                      _litreLabel(
+                        waterMillilitres ?? dashboard.waterMillilitres,
+                      ),
                       style: context.textTheme.bodySmall?.copyWith(
                         color: context.colors.inkSoft,
                       ),
@@ -68,4 +75,7 @@ class HomeWaterCard extends StatelessWidget {
       ),
     );
   }
+
+  String _litreLabel(int millilitres) =>
+      '${(millilitres / 1000).toStringAsFixed(1)} L';
 }

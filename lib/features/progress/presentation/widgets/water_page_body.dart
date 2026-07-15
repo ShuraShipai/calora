@@ -1,5 +1,6 @@
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/theme/theme_context.dart';
+import 'package:calora/features/progress/models/water_entry.dart';
 import 'package:calora/features/progress/presentation/widgets/water_history_list.dart';
 import 'package:calora/features/progress/presentation/widgets/water_quick_add_buttons.dart';
 import 'package:calora/features/progress/presentation/widgets/water_ring_card.dart';
@@ -9,6 +10,8 @@ class WaterPageBody extends StatelessWidget {
   const WaterPageBody({
     super.key,
     required this.amountLabel,
+    required this.goalLabel,
+    required this.progress,
     required this.entries,
     required this.onAdd250,
     required this.onAdd500,
@@ -16,7 +19,9 @@ class WaterPageBody extends StatelessWidget {
   });
 
   final String amountLabel;
-  final List<WaterHistoryEntry> entries;
+  final String goalLabel;
+  final double progress;
+  final List<WaterEntry> entries;
   final VoidCallback onAdd250;
   final VoidCallback onAdd500;
   final VoidCallback onCustom;
@@ -28,7 +33,11 @@ class WaterPageBody extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-          child: WaterRingCard(amountLabel: amountLabel),
+          child: WaterRingCard(
+            amountLabel: amountLabel,
+            goalLabel: goalLabel,
+            progress: progress,
+          ),
         ),
         const SizedBox(height: AppSpacing.sectionGap),
         Padding(

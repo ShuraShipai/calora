@@ -3,7 +3,6 @@ import 'package:calora/app/widgets/main_bottom_navigation.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/widgets/calora_list.dart';
-import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_account_actions.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_confirm_action_sheet.dart';
@@ -108,9 +107,16 @@ class ProfileScreen extends StatelessWidget {
                   description:
                       'This permanently removes your diary, progress history and profile. This can\'t be undone.',
                   confirmLabel: 'Delete',
-                  onConfirm: () => Navigator.of(
-                    context,
-                  ).pushNamedAndRemoveUntil(AppRoutes.splash, (route) => false),
+                  onConfirm: () async {
+                    final deleted = await context
+                        .read<AuthProvider>()
+                        .deleteAccount();
+                    if (!context.mounted || !deleted) return;
+                    await Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.splash,
+                      (route) => false,
+                    );
+                  },
                 ),
               ),
             ),
@@ -130,9 +136,9 @@ class ProfileScreen extends StatelessWidget {
     required String confirmLabel,
     required VoidCallback onConfirm,
   }) {
-    showCaloraSheet<void>(
+    showDialog<void>(
       context: context,
-      builder: (sheetContext) => ProfileConfirmActionSheet(
+      builder: (dialogContext) => ProfileConfirmActionDialog(
         title: title,
         description: description,
         confirmLabel: confirmLabel,

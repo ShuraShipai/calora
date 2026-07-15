@@ -12,6 +12,7 @@ class CustomWaterSheet extends StatefulWidget {
 }
 
 class _CustomWaterSheetState extends State<CustomWaterSheet> {
+  final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
 
   @override
@@ -24,25 +25,34 @@ class _CustomWaterSheetState extends State<CustomWaterSheet> {
   Widget build(BuildContext context) {
     return CaloraSheet(
       title: 'Add water',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          CaloraLabeledField(
-            label: 'Amount (ml)',
-            hint: 'e.g. 350',
-            controller: _controller,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: AppSpacing.section),
-          CaloraActionButton(
-            label: 'Add',
-            onPressed: () => Navigator.pop(
-              context,
-              int.tryParse(_controller.text.trim()) ?? 350,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            CaloraLabeledField(
+              label: 'Amount (ml)',
+              hint: 'e.g. 350',
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                final amount = int.tryParse(value?.trim() ?? '');
+                return amount == null || amount <= 0
+                    ? 'Enter an amount greater than 0.'
+                    : null;
+              },
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.section),
+            CaloraActionButton(
+              label: 'Add',
+              onPressed: () {
+                if (!(_formKey.currentState?.validate() ?? false)) return;
+                Navigator.pop(context, int.parse(_controller.text.trim()));
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

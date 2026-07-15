@@ -9,6 +9,7 @@ import 'package:calora/features/home/presentation/widgets/home_macros.dart';
 import 'package:calora/features/home/presentation/widgets/home_meals_section.dart';
 import 'package:calora/features/home/presentation/widgets/home_water_card.dart';
 import 'package:calora/features/home/providers/home_provider.dart';
+import 'package:calora/features/progress/providers/progress_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final home = context.watch<HomeProvider>();
     final diary = context.watch<DiaryProvider>();
+    final progress = context.watch<ProgressProvider>();
     final profile = context.watch<AuthProvider>().profile;
     final dashboard = home.dashboard;
     return CaloraPage(
@@ -36,7 +38,12 @@ class HomeScreen extends StatelessWidget {
           ),
           CaloraSection(child: HomeCalorieSummary(dashboard: dashboard)),
           CaloraSection(child: HomeMacros(dashboard: dashboard)),
-          CaloraSection(child: HomeWaterCard(dashboard: dashboard)),
+          CaloraSection(
+            child: HomeWaterCard(
+              dashboard: dashboard,
+              waterMillilitres: progress.waterTodayMl,
+            ),
+          ),
           HomeMealsSection(diary: diary),
           SizedBox(height: AppSpacing.xxl.h),
         ],

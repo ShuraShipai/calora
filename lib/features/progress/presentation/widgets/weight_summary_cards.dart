@@ -4,18 +4,34 @@ import 'package:calora/core/widgets/calora_card.dart';
 import 'package:flutter/material.dart';
 
 class WeightSummaryCards extends StatelessWidget {
-  const WeightSummaryCards({super.key});
+  const WeightSummaryCards({
+    super.key,
+    required this.currentWeightKg,
+    required this.targetWeightKg,
+    required this.monthlyChangeKg,
+  });
+
+  final double? currentWeightKg;
+  final double? targetWeightKg;
+  final double? monthlyChangeKg;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        Expanded(child: _card(context, '0 kg', 'Current')),
+        Expanded(
+          child: _card(context, _weightLabel(currentWeightKg), 'Current'),
+        ),
         const SizedBox(width: AppSpacing.lg),
-        Expanded(child: _card(context, '0 kg', 'Target')),
+        Expanded(child: _card(context, _weightLabel(targetWeightKg), 'Target')),
         const SizedBox(width: AppSpacing.lg),
         Expanded(
-          child: _card(context, '0 kg', 'This month', context.colors.moss),
+          child: _card(
+            context,
+            _changeLabel(monthlyChangeKg),
+            'This month',
+            context.colors.moss,
+          ),
         ),
       ],
     );
@@ -46,5 +62,13 @@ class WeightSummaryCards extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _weightLabel(double? value) =>
+      value == null ? '—' : '${value.toStringAsFixed(1)} kg';
+
+  String _changeLabel(double? value) {
+    if (value == null) return '—';
+    return '${value >= 0 ? '+' : '−'}${value.abs().toStringAsFixed(1)} kg';
   }
 }

@@ -12,9 +12,9 @@ abstract interface class AuthService {
     required String email,
     required String password,
   });
-  Future<UserCredential> signInAnonymously();
   Future<void> sendPasswordResetEmail(String email);
   Future<void> signOut();
+  Future<void> deleteAccount();
 }
 
 class FirebaseAuthService implements AuthService {
@@ -55,13 +55,16 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  Future<UserCredential> signInAnonymously() =>
-      _firebaseAuth.signInAnonymously();
-
-  @override
   Future<void> sendPasswordResetEmail(String email) =>
       _firebaseAuth.sendPasswordResetEmail(email: email.trim());
 
   @override
   Future<void> signOut() => _firebaseAuth.signOut();
+
+  @override
+  Future<void> deleteAccount() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) return;
+    await user.delete();
+  }
 }

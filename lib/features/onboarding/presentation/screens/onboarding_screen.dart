@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/theme/app_tokens.dart';
+import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_activity_step.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_details_step.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_footer.dart';
@@ -7,46 +10,96 @@ import 'package:calora/features/onboarding/presentation/widgets/onboarding_goal_
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_header.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_progress.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_units_step.dart';
+import 'package:calora/features/onboarding/providers/onboarding_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<OnboardingProvider>(
+      create: (context) => OnboardingProvider(
+        initialName: context.read<AuthProvider>().profile?.name ?? '',
+      ),
+      child: const _OnboardingView(),
+    );
+  }
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  static const _totalSteps = 4;
-  int _step = 0;
+class _OnboardingView extends StatefulWidget {
+  const _OnboardingView();
 
-  void _finish() {
-    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (_) => false);
+  @override
+  State<_OnboardingView> createState() => _OnboardingViewState();
+}
+
+class _OnboardingViewState extends State<_OnboardingView> {
+  final _detailsFormKey = GlobalKey<FormState>();
+  bool _isCompleting = false;
+
+  Future<void> _finish() async {
+    if (_isCompleting) return;
+    setState(() => _isCompleting = true);
+    final onboarding = context.read<OnboardingProvider>();
+    final auth = context.read<AuthProvider>();
+    final completed = await auth.completeOnboarding(
+      name: onboarding.name.trim(),
+      details: onboarding.details,
+    );
+    if (!mounted) return;
+    setState(() => _isCompleting = false);
+    if (completed) {
+      unawaited(
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.home,
+          (_) => false,
+        ),
+      );
+    } else if (auth.errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
+    }
   }
 
   void _next() {
-    if (_step == _totalSteps - 1) {
-      _finish();
+    final onboarding = context.read<OnboardingProvider>();
+    if (onboarding.isFirstStep &&
+        !(_detailsFormKey.currentState?.validate() ?? false)) {
       return;
     }
-    setState(() => _step++);
+    final selectionMissing =
+        (onboarding.step == 1 && onboarding.activityLevel == null) ||
+        (onboarding.step == 2 && onboarding.goal == null) ||
+        (onboarding.isLastStep && onboarding.unitSystem == null);
+    if (selectionMissing) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Choose an option to continue.')),
+      );
+      return;
+    }
+    if (onboarding.isLastStep) {
+      unawaited(_finish());
+      return;
+    }
+    onboarding.next();
   }
 
-  void _back() {
-    if (_step > 0) setState(() => _step--);
-  }
+  void _back() => context.read<OnboardingProvider>().back();
 
-  Widget _currentStep() {
-    return switch (_step) {
-      0 => const OnboardingDetailsStep(),
-      1 => const OnboardingActivityStep(),
-      2 => const OnboardingGoalStep(),
-      _ => const OnboardingUnitsStep(),
-    };
-  }
+  Widget _currentStep(int step) => switch (step) {
+    0 => Form(key: _detailsFormKey, child: const OnboardingDetailsStep()),
+    1 => const OnboardingActivityStep(),
+    2 => const OnboardingGoalStep(),
+    _ => const OnboardingUnitsStep(),
+  };
 
   @override
   Widget build(BuildContext context) {
+    final onboarding = context.watch<OnboardingProvider>();
     return Scaffold(
       key: const ValueKey<String>('ob-1'),
       body: SafeArea(
@@ -58,7 +111,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Column(
               children: <Widget>[
                 OnboardingHeader(onSkip: _finish),
-                OnboardingProgress(currentStep: _step, totalSteps: _totalSteps),
+                OnboardingProgress(
+                  currentStep: onboarding.step,
+                  totalSteps: OnboardingProvider.totalSteps,
+                ),
                 Expanded(
                   child: SingleChildScrollView(
                     keyboardDismissBehavior:
@@ -72,15 +128,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: AnimatedSwitcher(
                       duration: AppDurations.fast,
                       child: KeyedSubtree(
-                        key: ValueKey<int>(_step),
-                        child: _currentStep(),
+                        key: ValueKey<int>(onboarding.step),
+                        child: _currentStep(onboarding.step),
                       ),
                     ),
                   ),
                 ),
                 OnboardingFooter(
-                  showBack: _step > 0,
-                  isLastStep: _step == _totalSteps - 1,
+                  showBack: !onboarding.isFirstStep,
+                  isLastStep: onboarding.isLastStep,
                   onBack: _back,
                   onNext: _next,
                 ),

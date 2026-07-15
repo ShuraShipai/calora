@@ -24,4 +24,8 @@ void main() {
     expect(profile.onboarding?.goal, WellnessGoal.loseWeight);
     expect(profile.onboarding?.unitSystem, UnitSystem.metric);
   });
+
+  test('blank onboarding details omit unset values', () {
+    expect(const OnboardingDetails().toMap(), isEmpty);
+  });
 }

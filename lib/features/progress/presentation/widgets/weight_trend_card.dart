@@ -5,7 +5,9 @@ import 'package:calora/core/widgets/calora_metrics.dart';
 import 'package:flutter/material.dart';
 
 class WeightTrendCard extends StatelessWidget {
-  const WeightTrendCard({super.key});
+  const WeightTrendCard({super.key, required this.values});
+
+  final List<double> values;
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +24,8 @@ class WeightTrendCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          const CaloraLineChart(
-            values: <double>[0, 0, 0, 0, 0, 0, 0],
+          CaloraLineChart(
+            values: values.isEmpty ? const <double>[0, 0] : values,
             showLastPoint: true,
           ),
         ],

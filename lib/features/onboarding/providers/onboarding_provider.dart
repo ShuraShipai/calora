@@ -12,14 +12,14 @@ class OnboardingProvider extends ChangeNotifier {
   String height = '';
   String currentWeight = '';
   String targetWeight = '';
-  ActivityLevel activityLevel = ActivityLevel.sedentary;
-  WellnessGoal goal = WellnessGoal.loseWeight;
-  UnitSystem unitSystem = UnitSystem.metric;
+  ActivityLevel? activityLevel;
+  WellnessGoal? goal;
+  UnitSystem? unitSystem;
 
   int get step => _step;
   bool get isFirstStep => _step == 0;
   bool get isLastStep => _step == totalSteps - 1;
-  int get dailyCalorieTarget => 1840;
+  int? get dailyCalorieTarget => null;
 
   void next() {
     if (isLastStep) return;
@@ -31,6 +31,26 @@ class OnboardingProvider extends ChangeNotifier {
     if (isFirstStep) return;
     _step--;
     notifyListeners();
+  }
+
+  void updateName(String value) {
+    name = value;
+  }
+
+  void updateAge(String value) {
+    age = value;
+  }
+
+  void updateHeight(String value) {
+    height = value;
+  }
+
+  void updateCurrentWeight(String value) {
+    currentWeight = value;
+  }
+
+  void updateTargetWeight(String value) {
+    targetWeight = value;
   }
 
   void selectActivity(ActivityLevel value) {
