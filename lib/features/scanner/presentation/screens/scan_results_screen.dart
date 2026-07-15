@@ -5,14 +5,20 @@ import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
+import 'package:calora/features/diary/models/diary_entry.dart';
+import 'package:calora/features/diary/models/meal_type.dart';
+import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/scanner/models/scan_item.dart';
+import 'package:calora/features/scanner/models/scanner_request.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_estimate_notice.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_food_sheet.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_items_list.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_meal_picker.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_nutrition_summary.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_result_image.dart';
+import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ScanResultsScreen extends StatefulWidget {
   const ScanResultsScreen({super.key});
@@ -24,6 +30,84 @@ class ScanResultsScreen extends StatefulWidget {
 class _ScanResultsScreenState extends State<ScanResultsScreen> {
   final _items = <ScanItem>[];
   String _meal = 'Lunch';
+  ScannerRequest? _request;
+  bool _saving = false;
+  bool _barcodeLookupStarted = false;
+
+  ScannerRequest get request => _request ?? const ScannerRequest.meal();
+
+  void _resolveRequest() {
+    if (_request != null) return;
+    _request = ModalRoute.of(context)?.settings.arguments as ScannerRequest?;
+    _meal = request.mealType.label;
+    if (request.mode == ScannerMode.barcode && request.barcodeValue != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _lookupBarcode());
+    }
+  }
+
+  Future<void> _lookupBarcode() async {
+    if (_barcodeLookupStarted || !mounted) return;
+    final barcode = request.barcodeValue;
+    if (barcode == null) return;
+    _barcodeLookupStarted = true;
+    final product = await context.read<BarcodeLookupProvider>().lookup(barcode);
+    if (!mounted) return;
+    if (product == null) {
+      showCaloraMessage(
+        context,
+        context.read<BarcodeLookupProvider>().errorMessage ??
+            'No product found for this barcode.',
+      );
+      return;
+    }
+    setState(() {
+      _items.add(
+        ScanItem(
+          name: product.name,
+          amount: '1',
+          unit: product.servingLabel,
+          kcal: product.calories,
+          protein: product.protein,
+          carbs: product.carbs,
+          fat: product.fat,
+          confidence: 'Database',
+        ),
+      );
+    });
+  }
+
+  Future<void> _saveToDiary() async {
+    if (_items.isEmpty || _saving) return;
+    setState(() => _saving = true);
+    try {
+      final meal = MealTypeX.fromStored(_meal);
+      for (final item in _items) {
+        await context.read<DiaryProvider>().add(
+          DiaryEntry(
+            id: '',
+            meal: meal.storedValue,
+            name: item.name,
+            serving: '${item.amount} ${item.unit}',
+            calories: item.kcal,
+            protein: item.protein,
+            carbs: item.carbs,
+            fat: item.fat,
+            loggedAt: DateTime.now(),
+          ),
+        );
+      }
+      if (!mounted) return;
+      await Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.diary,
+        (route) => route.settings.name == AppRoutes.home,
+      );
+    } catch (_) {
+      if (mounted) showCaloraMessage(context, 'Could not save diary entries.');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   Future<void> _editItem(int? index) async {
     final result = await showCaloraSheet<ScanItemEditResult>(
@@ -45,6 +129,7 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _resolveRequest();
     return CaloraPage(
       screenId: 'scanresults',
       title: 'Scan result',
@@ -91,6 +176,7 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
                       Navigator.pushReplacementNamed(
                         context,
                         AppRoutes.scanner,
+                        arguments: request,
                       ),
                     ),
                   ),
@@ -99,13 +185,7 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
                 Expanded(
                   child: CaloraActionButton(
                     label: 'Save to diary',
-                    onPressed: () => unawaited(
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        AppRoutes.diary,
-                        (route) => route.settings.name == AppRoutes.home,
-                      ),
-                    ),
+                    onPressed: _items.isEmpty || _saving ? null : _saveToDiary,
                   ),
                 ),
               ],

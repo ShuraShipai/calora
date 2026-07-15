@@ -12,6 +12,8 @@ class ScannerPreview extends StatelessWidget {
     required this.onGallery,
     required this.onCapture,
     required this.onCancel,
+    required this.mode,
+    this.cameraPreview,
   });
 
   final bool analysing;
@@ -21,6 +23,8 @@ class ScannerPreview extends StatelessWidget {
   final VoidCallback onGallery;
   final VoidCallback onCapture;
   final VoidCallback onCancel;
+  final String mode;
+  final Widget? cameraPreview;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +41,7 @@ class ScannerPreview extends StatelessWidget {
       ),
       child: Stack(
         children: <Widget>[
+          if (cameraPreview != null) Positioned.fill(child: cameraPreview!),
           Center(
             child: FractionallySizedBox(
               widthFactor: AppRatios.scannerFrameWidth,
@@ -96,7 +101,9 @@ class ScannerPreview extends StatelessWidget {
                     borderRadius: AppRadii.pillBorder,
                   ),
                   child: Text(
-                    'Place the full meal inside the frame for a better estimate.',
+                    mode == 'barcode'
+                        ? 'Place the product barcode inside the frame.'
+                        : 'Place the full meal inside the frame for a better estimate.',
                     textAlign: TextAlign.center,
                     style: context.textTheme.labelMedium?.copyWith(
                       color: context.colors.onAccent,
@@ -117,7 +124,9 @@ class ScannerPreview extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xl),
                     Semantics(
                       button: true,
-                      label: 'Capture meal',
+                      label: mode == 'barcode'
+                          ? 'Scan barcode'
+                          : 'Capture meal',
                       child: GestureDetector(
                         onTap: onCapture,
                         child: Container(
@@ -164,7 +173,9 @@ class ScannerPreview extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sectionGap),
                     Text(
-                      'Analysing your meal',
+                      mode == 'barcode'
+                          ? 'Looking up product'
+                          : 'Analysing your meal',
                       style: context.textTheme.titleMedium?.copyWith(
                         color: context.colors.onAccent,
                       ),

@@ -8,6 +8,10 @@ import 'package:calora/features/home/providers/home_provider.dart';
 import 'package:calora/features/home/services/home_dashboard_service.dart';
 import 'package:calora/features/progress/providers/progress_provider.dart';
 import 'package:calora/features/progress/services/progress_service.dart';
+import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
+import 'package:calora/features/scanner/providers/scanner_provider.dart';
+import 'package:calora/features/scanner/services/barcode_scanner_service.dart';
+import 'package:calora/features/scanner/services/food_product_lookup_service.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -20,6 +24,10 @@ final List<SingleChildWidget> appProviders = <SingleChildWidget>[
   ),
   Provider<DiaryService>(create: (_) => FirestoreDiaryService()),
   Provider<ProgressService>(create: (_) => FirestoreProgressService()),
+  Provider<FoodProductLookupService>(
+    create: (_) => OpenFoodFactsProductLookupService(),
+  ),
+  Provider<BarcodeScannerService>(create: (_) => BarcodeScannerService()),
   ChangeNotifierProvider<AuthProvider>(
     create: (context) => AuthProvider(
       context.read<AuthService>(),
@@ -37,5 +45,12 @@ final List<SingleChildWidget> appProviders = <SingleChildWidget>[
   ChangeNotifierProxyProvider<AuthProvider, ProgressProvider>(
     create: (context) => ProgressProvider(context.read<ProgressService>()),
     update: (_, auth, progress) => progress!..updateUser(auth.profile),
+  ),
+  ChangeNotifierProvider<BarcodeLookupProvider>(
+    create: (context) =>
+        BarcodeLookupProvider(context.read<FoodProductLookupService>()),
+  ),
+  ChangeNotifierProvider<ScannerProvider>(
+    create: (context) => ScannerProvider(context.read<BarcodeScannerService>()),
   ),
 ];
