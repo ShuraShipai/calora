@@ -2,10 +2,13 @@ import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_form.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
+import 'package:calora/core/models/user_profile.dart';
+import 'package:calora/core/formatters/measurement_formatter.dart';
 import 'package:flutter/material.dart';
 
 class LogWeightSheet extends StatefulWidget {
-  const LogWeightSheet({super.key});
+  const LogWeightSheet({super.key, this.unitSystem});
+  final UnitSystem? unitSystem;
 
   @override
   State<LogWeightSheet> createState() => _LogWeightSheetState();
@@ -69,7 +72,9 @@ class _LogWeightSheetState extends State<LogWeightSheet> {
             ),
             const SizedBox(height: AppSpacing.xxl),
             CaloraLabeledField(
-              label: 'Weight (kg)',
+              label: widget.unitSystem == UnitSystem.imperial
+                  ? 'Weight (lb)'
+                  : 'Weight (kg)',
               hint: 'e.g. 67.5',
               controller: _weightController,
               keyboardType: const TextInputType.numberWithOptions(
@@ -96,7 +101,10 @@ class _LogWeightSheetState extends State<LogWeightSheet> {
                 Navigator.pop(
                   context,
                   WeightEntryDraft(
-                    weightKg: double.parse(_weightController.text.trim()),
+                    weightKg: MeasurementFormatter.weightToKg(
+                      double.parse(_weightController.text.trim()),
+                      widget.unitSystem,
+                    ),
                     loggedAt: _loggedAt,
                     note: _noteController.text.trim(),
                   ),

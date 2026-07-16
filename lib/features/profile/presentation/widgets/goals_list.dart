@@ -2,6 +2,7 @@ import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_list.dart';
 import 'package:calora/core/models/user_profile.dart';
+import 'package:calora/core/formatters/measurement_formatter.dart';
 import 'package:flutter/material.dart';
 
 class GoalsList extends StatelessWidget {
@@ -12,6 +13,22 @@ class GoalsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final details = profile?.onboarding;
+    final unitSystem = details?.unitSystem;
+    final waterMl = ((details?.waterGoalLiters ?? 0) * 1000).round();
+    final waterValue = MeasurementFormatter.waterFromMillilitres(
+      waterMl,
+      unitSystem,
+    );
+    final targetWeight = MeasurementFormatter.weightFromKg(
+      details?.targetWeightKg ?? 0,
+      unitSystem,
+    );
+    final weeklyWeight = MeasurementFormatter.weightFromKg(
+      details?.weeklyWeightGoalKg ?? 0,
+      unitSystem,
+    );
+    final weightUnit = unitSystem == UnitSystem.imperial ? 'lb' : 'kg';
+    final waterUnit = unitSystem == UnitSystem.imperial ? 'fl oz' : 'L';
     return CaloraGroupedList(
       children: <Widget>[
         _row(
@@ -56,30 +73,30 @@ class GoalsList extends StatelessWidget {
         _row(
           context,
           Icons.water_drop_outlined,
-          '${details?.waterGoalLiters ?? 0} L',
+          '${waterValue.toStringAsFixed(1)} $waterUnit',
           'Based on your body weight',
           'Water goal',
-          '${details?.waterGoalLiters ?? 0}',
-          'L',
+          '$waterValue',
+          waterUnit,
           context.colors.water,
         ),
         _row(
           context,
           Icons.near_me_outlined,
-          '${details?.targetWeightKg ?? 0} kg',
+          '${targetWeight.toStringAsFixed(1)} $weightUnit',
           'Target weight',
           'Target weight',
-          '${details?.targetWeightKg ?? 0}',
-          'kg',
+          '$targetWeight',
+          weightUnit,
         ),
         _row(
           context,
           Icons.horizontal_rule,
-          '${details?.weeklyWeightGoalKg ?? 0} kg / week',
+          '${weeklyWeight.toStringAsFixed(1)} $weightUnit / week',
           'A gentle, sustainable pace',
           'Weekly weight goal',
-          '${details?.weeklyWeightGoalKg ?? 0}',
-          'kg / week',
+          '$weeklyWeight',
+          '$weightUnit / week',
         ),
       ],
     );

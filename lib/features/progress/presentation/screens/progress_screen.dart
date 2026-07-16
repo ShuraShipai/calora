@@ -1,4 +1,3 @@
-import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/app/widgets/main_bottom_navigation.dart';
 import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/widgets/calora_screen_scaffold.dart';
@@ -55,7 +54,6 @@ class _ProgressScreenState extends State<ProgressScreen> {
       body: ProgressPageBody(
         selectedFilter: _selectedFilter,
         onFilterSelected: _selectFilter,
-        onWeightPressed: () => Navigator.pushNamed(context, AppRoutes.weight),
         calorieValues: normalizedCalories,
         waterValues: normalizedWater,
         weightValues: weights,

@@ -1,4 +1,5 @@
 import 'package:calora/core/widgets/calora_list.dart';
+import 'package:calora/core/formatters/measurement_formatter.dart';
 import 'package:calora/core/models/user_profile.dart';
 import 'package:flutter/material.dart';
 
@@ -25,12 +26,18 @@ class ProfileDetailsSummary extends StatelessWidget {
         CaloraListRow(
           icon: Icons.height,
           title: 'Height',
-          subtitle: '${details?.heightCm ?? 0} cm',
+          subtitle: MeasurementFormatter.height(
+            details?.heightCm,
+            details?.unitSystem,
+          ),
         ),
         CaloraListRow(
           icon: Icons.circle_outlined,
           title: 'Current weight',
-          subtitle: '${details?.currentWeightKg ?? 0} kg',
+          subtitle: MeasurementFormatter.weight(
+            details?.currentWeightKg,
+            details?.unitSystem,
+          ),
         ),
       ],
     );

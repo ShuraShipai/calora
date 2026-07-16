@@ -10,7 +10,6 @@ class ProgressPageBody extends StatelessWidget {
     super.key,
     required this.selectedFilter,
     required this.onFilterSelected,
-    required this.onWeightPressed,
     required this.calorieValues,
     required this.weightValues,
     required this.waterValues,
@@ -26,7 +25,6 @@ class ProgressPageBody extends StatelessWidget {
 
   final int selectedFilter;
   final ValueChanged<int> onFilterSelected;
-  final VoidCallback onWeightPressed;
   final List<double> calorieValues;
   final List<double> weightValues;
   final List<double> waterValues;
@@ -75,7 +73,6 @@ class ProgressPageBody extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
           child: ProgressTrendsCard(
-            onWeightPressed: onWeightPressed,
             weightValues: weightValues,
             waterValues: waterValues,
             labels: labels,

@@ -13,6 +13,7 @@ abstract interface class AuthService {
     required String password,
   });
   Future<void> sendPasswordResetEmail(String email);
+  Future<void> reauthenticateWithPassword(String password);
   Future<void> signOut();
   Future<void> deleteAccount();
 }
@@ -57,6 +58,21 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<void> sendPasswordResetEmail(String email) =>
       _firebaseAuth.sendPasswordResetEmail(email: email.trim());
+
+  @override
+  Future<void> reauthenticateWithPassword(String password) async {
+    final user = _firebaseAuth.currentUser;
+    final email = user?.email;
+    if (user == null || email == null) {
+      throw FirebaseAuthException(
+        code: 'requires-recent-login',
+        message: 'Sign in again before deleting your account.',
+      );
+    }
+    await user.reauthenticateWithCredential(
+      EmailAuthProvider.credential(email: email, password: password),
+    );
+  }
 
   @override
   Future<void> signOut() => _firebaseAuth.signOut();

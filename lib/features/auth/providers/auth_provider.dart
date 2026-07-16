@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/features/auth/services/auth_service.dart';
+import 'package:calora/features/auth/services/account_deletion_service.dart';
 import 'package:calora/features/auth/services/user_profile_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -14,12 +15,18 @@ enum AuthStatus {
 }
 
 class AuthProvider extends ChangeNotifier {
-  AuthProvider(this._authService, this._profileService) {
+  AuthProvider(
+    this._authService,
+    this._profileService, {
+    AccountDeletionService? accountDeletionService,
+  }) : _accountDeletionService =
+           accountDeletionService ?? _UnavailableAccountDeletionService() {
     _subscription = _authService.authStateChanges().listen(_handleAuthChange);
   }
 
   final AuthService _authService;
   final UserProfileService _profileService;
+  final AccountDeletionService _accountDeletionService;
   late final StreamSubscription<User?> _subscription;
 
   AuthStatus _status = AuthStatus.initializing;
@@ -105,15 +112,15 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteAccount() async {
+  Future<bool> deleteAccount({required String password}) async {
     final profile = _profile;
     if (profile == null) {
       _setError('Your session has expired. Please sign in again.');
       return false;
     }
     return _runTask(() async {
-      await _profileService.delete(profile.uid);
-      await _authService.deleteAccount();
+      await _authService.reauthenticateWithPassword(password);
+      await _accountDeletionService.deleteCurrentUsersData();
       _profile = null;
       _status = AuthStatus.unauthenticated;
     });
@@ -226,4 +233,10 @@ class AuthProvider extends ChangeNotifier {
     unawaited(_subscription.cancel());
     super.dispose();
   }
+}
+
+class _UnavailableAccountDeletionService implements AccountDeletionService {
+  @override
+  Future<void> deleteCurrentUsersData() =>
+      Future<void>.error(StateError('Account deletion is unavailable.'));
 }

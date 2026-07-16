@@ -14,6 +14,9 @@ class FakeAuthService implements AuthService {
   Future<void> sendPasswordResetEmail(String email) async {}
 
   @override
+  Future<void> reauthenticateWithPassword(String password) async {}
+
+  @override
   Future<UserCredential> signIn({
     required String email,
     required String password,

@@ -1,0 +1,30 @@
+# All paths are relative to this configuration file.
+experiment_name: food101_classifier_baseline
+dataset_root: ../../data/raw/food101/food-101
+output_dir: ../../runs/food101_classifier_baseline
+
+model:
+  architecture: resnet18
+  pretrained_weights: imagenet
+  num_classes: 101
+  input_size: 224
+  normalize_mean: [0.485, 0.456, 0.406]
+  normalize_std: [0.229, 0.224, 0.225]
+
+split:
+  train_list: meta/train.txt
+  test_list: meta/test.txt
+  classes_file: meta/classes.txt
+  validation_fraction: 0.15
+  seed: 42
+
+training:
+  batch_size: 32
+  epochs: 20
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  num_workers: 4
+
+evaluation:
+  top_k: [1, 3]
+  confidence_threshold: 0.60

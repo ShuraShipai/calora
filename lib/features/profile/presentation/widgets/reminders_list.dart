@@ -1,46 +1,47 @@
 import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_list.dart';
+import 'package:calora/features/profile/models/reminder.dart';
 import 'package:flutter/material.dart';
 
 class RemindersList extends StatelessWidget {
   const RemindersList({
     super.key,
-    required this.enabled,
-    required this.onEnabled,
+    required this.reminders,
+    required this.onChanged,
     required this.onEdit,
   });
-  final List<bool> enabled;
-  final ValueChanged<int> onEnabled;
-  final ValueChanged<int> onEdit;
-
-  static const _items = <(IconData, String, String)>[
-    (Icons.breakfast_dining_outlined, 'Breakfast reminder', '8:00 AM'),
-    (Icons.lunch_dining_outlined, 'Lunch reminder', '1:00 PM'),
-    (Icons.dinner_dining_outlined, 'Dinner reminder', '8:00 PM'),
-    (Icons.water_drop_outlined, 'Water reminder', 'Every 2 hours'),
-    (Icons.near_me_outlined, 'Weight logging reminder', 'Sundays, 9:00 AM'),
-    (
-      Icons.eco_outlined,
-      'Daily logging reminder',
-      '9:30 PM, if diary is empty',
-    ),
-  ];
+  final List<Reminder> reminders;
+  final ValueChanged<Reminder> onChanged;
+  final ValueChanged<Reminder> onEdit;
 
   @override
   Widget build(BuildContext context) => CaloraGroupedList(
-    children: List<Widget>.generate(_items.length, (index) {
-      final item = _items[index];
-      return CaloraListRow(
-        icon: item.$1,
-        iconColor: index == 3 ? context.colors.water : context.colors.inkSoft,
-        title: item.$2,
-        subtitle: item.$3,
-        onTap: () => onEdit(index),
-        trailing: Switch.adaptive(
-          value: enabled[index],
-          onChanged: (_) => onEnabled(index),
-        ),
-      );
-    }),
+    children: reminders
+        .map((reminder) {
+          return CaloraListRow(
+            icon: _iconFor(reminder.kind),
+            iconColor: reminder.kind == ReminderKind.water
+                ? context.colors.water
+                : context.colors.inkSoft,
+            title: reminder.title,
+            subtitle: reminder.scheduleLabel,
+            onTap: () => onEdit(reminder),
+            trailing: Switch.adaptive(
+              value: reminder.enabled,
+              onChanged: (enabled) =>
+                  onChanged(reminder.copyWith(enabled: enabled)),
+            ),
+          );
+        })
+        .toList(growable: false),
   );
+
+  IconData _iconFor(ReminderKind kind) => switch (kind) {
+    ReminderKind.breakfast => Icons.breakfast_dining_outlined,
+    ReminderKind.lunch => Icons.lunch_dining_outlined,
+    ReminderKind.dinner => Icons.dinner_dining_outlined,
+    ReminderKind.water => Icons.water_drop_outlined,
+    ReminderKind.weight => Icons.near_me_outlined,
+    ReminderKind.diary => Icons.eco_outlined,
+  };
 }

@@ -10,6 +10,7 @@ import 'package:calora/features/home/presentation/widgets/home_header.dart';
 import 'package:calora/features/home/presentation/widgets/home_macros.dart';
 import 'package:calora/features/home/presentation/widgets/home_meals_section.dart';
 import 'package:calora/features/home/presentation/widgets/home_water_card.dart';
+import 'package:calora/features/home/presentation/widgets/home_weight_card.dart';
 import 'package:calora/features/progress/providers/progress_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,6 +49,16 @@ class HomeScreen extends StatelessWidget {
             child: HomeWaterCard(
               dashboard: dashboard,
               waterMillilitres: progress.waterTodayMl,
+              unitSystem: profile?.onboarding?.unitSystem,
+            ),
+          ),
+          CaloraSection(
+            child: HomeWeightCard(
+              currentWeightKg:
+                  progress.latestWeight?.weightKg ??
+                  profile?.onboarding?.currentWeightKg,
+              targetWeightKg: profile?.onboarding?.targetWeightKg,
+              unitSystem: profile?.onboarding?.unitSystem,
             ),
           ),
           HomeMealsSection(diary: diary),

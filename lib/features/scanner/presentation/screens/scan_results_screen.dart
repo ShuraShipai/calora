@@ -36,6 +36,7 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
   String _meal = 'Lunch';
   ScannerRequest? _request;
   bool _saving = false;
+  bool _barcodeSaveCompleted = false;
   bool _barcodeLookupStarted = false;
 
   ScannerRequest get request => _request ?? const ScannerRequest.meal();
@@ -81,6 +82,10 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
   }
 
   Future<void> _saveToDiary() async {
+    if (request.mode == ScannerMode.barcode) {
+      await _saveBarcodeToDiary();
+      return;
+    }
     if (_items.isEmpty || _saving) return;
     setState(() => _saving = true);
     try {
@@ -115,6 +120,47 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
       if (mounted) showCaloraMessage(context, 'Could not save diary entries.');
     } finally {
       if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _saveBarcodeToDiary() async {
+    if (_items.isEmpty || _saving || _barcodeSaveCompleted) return;
+    setState(() => _saving = true);
+    try {
+      final meal = MealTypeX.fromStored(_meal);
+      for (final item in _items) {
+        await context.read<DiaryProvider>().add(
+          DiaryEntry(
+            id: '',
+            meal: meal.storedValue,
+            name: item.name,
+            serving: '${item.amount} ${item.unit}',
+            calories: item.kcal,
+            protein: item.protein,
+            carbs: item.carbs,
+            fat: item.fat,
+            fiber: item.fiber,
+            sugar: item.sugar,
+            loggedAt: DateTime.now(),
+            source: DiaryFoodSource.barcode,
+          ),
+        );
+      }
+      if (!mounted) return;
+      _barcodeSaveCompleted = true;
+      unawaited(
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.diary,
+          (route) => route.settings.name == AppRoutes.home,
+        ),
+      );
+    } catch (_) {
+      if (mounted) showCaloraMessage(context, 'Could not save diary entries.');
+    } finally {
+      if (mounted && !_barcodeSaveCompleted) {
+        setState(() => _saving = false);
+      }
     }
   }
 

@@ -11,9 +11,14 @@ class WeightScreen extends StatelessWidget {
   const WeightScreen({super.key});
 
   Future<void> _showLogWeightSheet(BuildContext context) async {
+    final unitSystem = context
+        .read<AuthProvider>()
+        .profile
+        ?.onboarding
+        ?.unitSystem;
     final entry = await showCaloraSheet<WeightEntryDraft>(
       context: context,
-      builder: (_) => const LogWeightSheet(),
+      builder: (_) => LogWeightSheet(unitSystem: unitSystem),
     );
     if (!context.mounted || entry == null) return;
     try {

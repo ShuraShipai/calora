@@ -3,9 +3,11 @@ import 'package:calora/app/widgets/main_bottom_navigation.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/widgets/calora_list.dart';
+import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_account_actions.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_confirm_action_sheet.dart';
+import 'package:calora/features/profile/presentation/widgets/account_reauthentication_sheet.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_identity_header.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_section.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_theme_row.dart';
@@ -115,10 +117,26 @@ class ProfileScreen extends StatelessWidget {
                       'This permanently removes your diary, progress history and profile. This can\'t be undone.',
                   confirmLabel: 'Delete',
                   onConfirm: () async {
+                    final password = await showCaloraSheet<String>(
+                      context: context,
+                      showDragHandle: false,
+                      cardStyle: true,
+                      builder: (_) => const AccountReauthenticationSheet(),
+                    );
+                    if (password == null || !context.mounted) return;
                     final deleted = await context
                         .read<AuthProvider>()
-                        .deleteAccount();
-                    if (!context.mounted || !deleted) return;
+                        .deleteAccount(password: password);
+                    if (!context.mounted) return;
+                    if (!deleted) {
+                      final error = context.read<AuthProvider>().errorMessage;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(error ?? 'Could not delete account.'),
+                        ),
+                      );
+                      return;
+                    }
                     await Navigator.of(context).pushNamedAndRemoveUntil(
                       AppRoutes.splash,
                       (route) => false,

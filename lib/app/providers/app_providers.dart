@@ -4,6 +4,7 @@ import 'package:calora/core/network/network_client.dart';
 import 'package:calora/core/network/network_connectivity_service.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/auth/services/auth_service.dart';
+import 'package:calora/features/auth/services/account_deletion_service.dart';
 import 'package:calora/features/auth/services/user_profile_service.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/diary/services/diary_service.dart';
@@ -11,6 +12,9 @@ import 'package:calora/features/home/providers/home_provider.dart';
 import 'package:calora/features/home/services/home_dashboard_service.dart';
 import 'package:calora/features/progress/providers/progress_provider.dart';
 import 'package:calora/features/progress/services/progress_service.dart';
+import 'package:calora/features/profile/providers/reminder_provider.dart';
+import 'package:calora/features/profile/services/local_notification_service.dart';
+import 'package:calora/features/profile/services/reminder_service.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:calora/features/scanner/providers/meal_capture_provider.dart';
 import 'package:calora/features/scanner/providers/scanner_provider.dart';
@@ -36,12 +40,19 @@ List<SingleChildWidget> appProviders({
     ),
   ),
   Provider<AuthService>(create: (_) => FirebaseAuthService()),
+  Provider<AccountDeletionService>(
+    create: (_) => FirebaseAccountDeletionService(),
+  ),
   Provider<UserProfileService>(create: (_) => FirestoreUserProfileService()),
   Provider<HomeDashboardService>(
     create: (_) => FirestoreHomeDashboardService(),
   ),
   Provider<DiaryService>(create: (_) => FirestoreDiaryService()),
   Provider<ProgressService>(create: (_) => FirestoreProgressService()),
+  Provider<ReminderService>(create: (_) => FirestoreReminderService()),
+  Provider<LocalNotificationService>(
+    create: (_) => FlutterLocalNotificationService(),
+  ),
   Provider<NetworkConnectivityService>(
     create: (_) => ConnectivityPlusNetworkConnectivityService(),
   ),
@@ -69,6 +80,7 @@ List<SingleChildWidget> appProviders({
     create: (context) => AuthProvider(
       context.read<AuthService>(),
       context.read<UserProfileService>(),
+      accountDeletionService: context.read<AccountDeletionService>(),
     ),
   ),
   ChangeNotifierProxyProvider<AuthProvider, HomeProvider>(
@@ -82,6 +94,13 @@ List<SingleChildWidget> appProviders({
   ChangeNotifierProxyProvider<AuthProvider, ProgressProvider>(
     create: (context) => ProgressProvider(context.read<ProgressService>()),
     update: (_, auth, progress) => progress!..updateUser(auth.profile),
+  ),
+  ChangeNotifierProxyProvider<AuthProvider, ReminderProvider>(
+    create: (context) => ReminderProvider(
+      context.read<ReminderService>(),
+      context.read<LocalNotificationService>(),
+    ),
+    update: (_, auth, reminders) => reminders!..updateUser(auth.profile?.uid),
   ),
   ChangeNotifierProvider<BarcodeLookupProvider>(
     create: (context) =>

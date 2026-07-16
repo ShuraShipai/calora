@@ -1,5 +1,6 @@
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/models/user_profile.dart';
+import 'package:calora/core/formatters/measurement_formatter.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/profile/presentation/widgets/goal_edit_sheet.dart';
 import 'package:calora/features/profile/presentation/widgets/goals_list.dart';
@@ -24,7 +25,7 @@ class GoalsScreen extends StatelessWidget {
               child: GoalsList(
                 profile: profile,
                 onEdit: (title, value, unit) =>
-                    _showEditor(context, title, value),
+                    _showEditor(context, title, value, unit),
               ),
             ),
             const SizedBox(height: AppSpacing.section),
@@ -34,14 +35,19 @@ class GoalsScreen extends StatelessWidget {
     );
   }
 
-  void _showEditor(BuildContext context, String title, String value) {
+  void _showEditor(
+    BuildContext context,
+    String title,
+    String value,
+    String unit,
+  ) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (_) => GoalEditSheet(
         title: title,
         value: value,
-        onSave: (value) => _saveGoal(context, title, value),
+        onSave: (value) => _saveGoal(context, title, value, unit),
       ),
     );
   }
@@ -50,6 +56,7 @@ class GoalsScreen extends StatelessWidget {
     BuildContext context,
     String title,
     double value,
+    String unit,
   ) async {
     final auth = context.read<AuthProvider>();
     final details = auth.profile?.onboarding ?? const OnboardingDetails();
@@ -62,9 +69,26 @@ class GoalsScreen extends StatelessWidget {
         carbohydrateGoalGrams: value.round(),
       ),
       'Fat goal' => details.copyWith(fatGoalGrams: value.round()),
-      'Water goal' => details.copyWith(waterGoalLiters: value),
-      'Target weight' => details.copyWith(targetWeightKg: value),
-      'Weekly weight goal' => details.copyWith(weeklyWeightGoalKg: value),
+      'Water goal' => details.copyWith(
+        waterGoalLiters:
+            MeasurementFormatter.waterToMillilitres(
+              value,
+              unit == 'fl oz' ? UnitSystem.imperial : UnitSystem.metric,
+            ) /
+            1000,
+      ),
+      'Target weight' => details.copyWith(
+        targetWeightKg: MeasurementFormatter.weightToKg(
+          value,
+          unit == 'lb' ? UnitSystem.imperial : UnitSystem.metric,
+        ),
+      ),
+      'Weekly weight goal' => details.copyWith(
+        weeklyWeightGoalKg: MeasurementFormatter.weightToKg(
+          value,
+          unit.startsWith('lb') ? UnitSystem.imperial : UnitSystem.metric,
+        ),
+      ),
       _ => details,
     };
     final saved = await auth.updateProfile(

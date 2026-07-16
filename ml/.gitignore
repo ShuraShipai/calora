@@ -1,0 +1,12 @@
+# Large datasets, checkpoints, and local experiment artefacts must stay local.
+data/
+runs/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.mlpackage/
+__pycache__/
+*.py[cod]
+.venv/
