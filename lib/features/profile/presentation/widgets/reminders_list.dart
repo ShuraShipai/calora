@@ -38,8 +38,8 @@ class RemindersList extends StatelessWidget {
 
   IconData _iconFor(ReminderKind kind) => switch (kind) {
     ReminderKind.breakfast => Icons.breakfast_dining_outlined,
-    ReminderKind.lunch => Icons.lunch_dining_outlined,
-    ReminderKind.dinner => Icons.dinner_dining_outlined,
+    ReminderKind.lunch => Icons.rice_bowl_outlined,
+    ReminderKind.dinner => Icons.local_pizza_outlined,
     ReminderKind.water => Icons.water_drop_outlined,
     ReminderKind.weight => Icons.near_me_outlined,
     ReminderKind.diary => Icons.eco_outlined,

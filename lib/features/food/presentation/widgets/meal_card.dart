@@ -114,9 +114,9 @@ class MealCard extends StatelessWidget {
   }
 
   IconData _iconFor(String label) => switch (label) {
-    'Breakfast' => Icons.wb_sunny_outlined,
-    'Lunch' => Icons.shopping_bag_outlined,
-    'Dinner' => Icons.dinner_dining_outlined,
-    _ => Icons.star_border,
+    'Breakfast' => Icons.breakfast_dining_outlined,
+    'Lunch' => Icons.rice_bowl_outlined,
+    'Dinner' => Icons.local_pizza_outlined,
+    _ => Icons.tapas_outlined,
   };
 }

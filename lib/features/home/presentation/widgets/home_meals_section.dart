@@ -46,7 +46,7 @@ class HomeMealsSection extends StatelessWidget {
           HomeMealSummaryCard(
             title: 'Lunch',
             summary: _summaryFor(MealType.lunch),
-            icon: Icons.shopping_bag_outlined,
+            icon: Icons.rice_bowl_outlined,
             onTap: openDiary,
             onAdd: () => addFood(MealType.lunch),
           ),
@@ -54,7 +54,7 @@ class HomeMealsSection extends StatelessWidget {
           HomeMealSummaryCard(
             title: 'Dinner',
             summary: _summaryFor(MealType.dinner),
-            icon: Icons.dinner_dining_outlined,
+            icon: Icons.local_pizza_outlined,
             onTap: openDiary,
             onAdd: () => addFood(MealType.dinner),
           ),
@@ -62,7 +62,7 @@ class HomeMealsSection extends StatelessWidget {
           HomeMealSummaryCard(
             title: 'Snacks',
             summary: _summaryFor(MealType.snacks),
-            icon: Icons.star_outline,
+            icon: Icons.tapas_outlined,
             onTap: openDiary,
             onAdd: () => addFood(MealType.snacks),
           ),

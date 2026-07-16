@@ -102,9 +102,9 @@ class DiaryDashboard extends StatelessWidget {
     entry: entry,
   );
   IconData _icon(MealType type) => switch (type) {
-    MealType.breakfast => Icons.wb_sunny_outlined,
-    MealType.lunch => Icons.shopping_bag_outlined,
-    MealType.dinner => Icons.dinner_dining_outlined,
-    MealType.snacks => Icons.star_border,
+    MealType.breakfast => Icons.breakfast_dining_outlined,
+    MealType.lunch => Icons.rice_bowl_outlined,
+    MealType.dinner => Icons.local_pizza_outlined,
+    MealType.snacks => Icons.tapas_outlined,
   };
 }
