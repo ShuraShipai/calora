@@ -19,19 +19,26 @@ import 'package:calora/features/profile/presentation/screens/units_screen.dart';
 import 'package:calora/features/progress/presentation/screens/progress_screen.dart';
 import 'package:calora/features/progress/presentation/screens/water_screen.dart';
 import 'package:calora/features/progress/presentation/screens/weight_screen.dart';
+import 'package:calora/features/scanner/models/scan_result_outcome.dart';
 import 'package:calora/features/scanner/presentation/screens/scan_results_screen.dart';
 import 'package:calora/features/scanner/presentation/screens/scanner_screen.dart';
 import 'package:flutter/material.dart';
 
 abstract final class AppRouter {
-  static Route<void> onGenerateRoute(RouteSettings settings) {
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    if (settings.name == AppRoutes.scanResults) {
+      return MaterialPageRoute<ScanResultOutcome?>(
+        builder: (_) => const ScanResultsScreen(),
+        settings: settings,
+      );
+    }
     final builder = _routes[settings.name];
     if (builder == null) return onUnknownRoute(settings);
-    return MaterialPageRoute<void>(builder: builder, settings: settings);
+    return MaterialPageRoute<dynamic>(builder: builder, settings: settings);
   }
 
-  static Route<void> onUnknownRoute(RouteSettings settings) {
-    return MaterialPageRoute<void>(
+  static Route<dynamic> onUnknownRoute(RouteSettings settings) {
+    return MaterialPageRoute<dynamic>(
       builder: (_) => const SplashScreen(),
       settings: const RouteSettings(name: AppRoutes.splash),
     );
@@ -49,7 +56,6 @@ abstract final class AppRouter {
     AppRoutes.copyMeal: (_) => const CopyMealScreen(),
     AppRoutes.customFood: (_) => const CustomFoodScreen(),
     AppRoutes.scanner: (_) => const ScannerScreen(),
-    AppRoutes.scanResults: (_) => const ScanResultsScreen(),
     AppRoutes.water: (_) => const WaterScreen(),
     AppRoutes.weight: (_) => const WeightScreen(),
     AppRoutes.progress: (_) => const ProgressScreen(),

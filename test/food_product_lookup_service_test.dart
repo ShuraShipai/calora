@@ -1,5 +1,6 @@
 import 'package:calora/core/network/network_client.dart';
 import 'package:calora/core/network/network_exception.dart';
+import 'package:calora/features/scanner/models/barcode_product.dart';
 import 'package:calora/features/scanner/services/food_product_lookup_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -61,6 +62,70 @@ void main() {
           (error) => error.message,
           'message',
           'No internet connection. Check your connection and try again.',
+        ),
+      ),
+    );
+  });
+
+  test('uses the API host when the world host has a server error', () async {
+    final service = OpenFoodFactsProductLookupService(
+      networkClient: _FakeNetworkClient((uri, _) {
+        if (uri.host == 'world.openfoodfacts.org') {
+          throw const NetworkException.server();
+        }
+        expect(uri.host, 'api.openfoodfacts.org');
+        return <String, dynamic>{
+          'status': 1,
+          'product': <String, dynamic>{
+            'product_name': 'Fallback product',
+            'nutriments': <String, dynamic>{},
+          },
+        };
+      }),
+    );
+
+    final product = await service.lookupBarcode('1234567890123');
+
+    expect(product?.name, 'Fallback product');
+  });
+
+  test('uses 100 g nutrition when serving macros are incomplete', () {
+    final product = BarcodeProduct.fromOpenFoodFacts(
+      barcode: '3017620422003',
+      product: <String, dynamic>{
+        'product_name': 'Chocolate spread',
+        'serving_size': '15 g',
+        'nutriments': <String, dynamic>{
+          'energy-kcal_100g': 539,
+          'proteins_100g': 6.3,
+          'carbohydrates_100g': 57.5,
+          'fat_100g': 30.9,
+          'nova-group_serving': 4,
+        },
+      },
+    );
+
+    expect(product.servingLabel, '100 g');
+    expect(product.calories, 539);
+    expect(product.protein, 6);
+    expect(product.carbs, 58);
+    expect(product.fat, 31);
+  });
+
+  test('rejects an alphanumeric barcode without making a lookup', () async {
+    final service = OpenFoodFactsProductLookupService(
+      networkClient: _FakeNetworkClient(
+        (_, _) => fail('The network client should not be called.'),
+      ),
+    );
+
+    expect(
+      () => service.lookupBarcode('ABC-1234567890'),
+      throwsA(
+        isA<BarcodeLookupException>().having(
+          (error) => error.message,
+          'message',
+          'Unsupported product barcode.',
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/scanner/models/meal_image.dart';
+import 'package:calora/features/scanner/models/scan_result_outcome.dart';
 import 'package:calora/features/scanner/models/scanner_request.dart';
 import 'package:calora/features/scanner/presentation/widgets/barcode_camera_preview.dart';
 import 'package:calora/features/scanner/presentation/widgets/meal_camera_preview.dart';
@@ -92,14 +93,28 @@ class _ScannerScreenState extends State<ScannerScreen> {
       capture,
     );
     if (!mounted || barcode == null) return;
-    await Navigator.pushNamed(
-      context,
-      AppRoutes.scanResults,
-      arguments: request.withBarcode(barcode),
-    );
-    if (mounted) {
-      await context.read<ScannerProvider>().resumeBarcodeScanning();
+    ScanResultOutcome? outcome;
+    try {
+      outcome = await Navigator.pushNamed<ScanResultOutcome>(
+        context,
+        AppRoutes.scanResults,
+        arguments: request.withBarcode(barcode),
+      );
+    } on Object {
+      if (mounted) {
+        showCaloraMessage(context, 'Could not open the product result.');
+      }
     }
+    if (!mounted) return;
+    if (outcome == ScanResultOutcome.saved) {
+      await Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.diary,
+        (route) => route.settings.name == AppRoutes.home,
+      );
+      return;
+    }
+    await context.read<ScannerProvider>().resumeBarcodeScanning();
   }
 
   @override

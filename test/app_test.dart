@@ -10,6 +10,7 @@ import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/home/models/home_dashboard.dart';
 import 'package:calora/features/home/providers/home_provider.dart';
 import 'package:calora/features/home/services/home_dashboard_service.dart';
+import 'package:calora/features/scanner/models/scan_result_outcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,21 @@ void main() {
 
     expect(find.text('Calora'), findsOneWidget);
     expect(find.byKey(const ValueKey<String>('splash')), findsOneWidget);
+  });
+
+  testWidgets('scan results can return a typed barcode outcome', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_testApp());
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+
+    final outcome = navigator.pushNamed<ScanResultOutcome>(
+      AppRoutes.scanResults,
+    );
+    await tester.pumpAndSettle();
+    navigator.pop(ScanResultOutcome.saved);
+
+    expect(await outcome, ScanResultOutcome.saved);
   });
 
   for (final themeMode in <ThemeMode>[ThemeMode.light, ThemeMode.dark]) {

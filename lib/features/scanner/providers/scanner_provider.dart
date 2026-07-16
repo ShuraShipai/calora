@@ -32,14 +32,8 @@ class ScannerProvider extends ChangeNotifier {
 
     _isProcessingBarcode = true;
     notifyListeners();
-    try {
-      await _service.stop();
-      return value;
-    } catch (_) {
-      _isProcessingBarcode = false;
-      notifyListeners();
-      return null;
-    }
+    unawaited(_pauseCamera());
+    return value;
   }
 
   Future<void> resumeBarcodeScanning() async {
@@ -49,7 +43,25 @@ class ScannerProvider extends ChangeNotifier {
     await _service.start();
   }
 
-  Future<void> stop() => _service.stop();
+  Future<void> _pauseCamera() async {
+    try {
+      await _service.stop();
+    } on Object {
+      // A platform stop failure must not trap the user on the lookup overlay.
+    }
+  }
+
+  Future<void> stop() async {
+    if (_isProcessingBarcode) {
+      _isProcessingBarcode = false;
+      notifyListeners();
+    }
+    try {
+      await _service.stop();
+    } on Object {
+      // Closing the scanner must not preserve a stale processing state.
+    }
+  }
 
   @override
   void dispose() {

@@ -11,6 +11,7 @@ import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/scanner/models/meal_label_suggestion.dart';
 import 'package:calora/features/scanner/models/scan_item.dart';
+import 'package:calora/features/scanner/models/scan_result_outcome.dart';
 import 'package:calora/features/scanner/models/scanner_request.dart';
 import 'package:calora/features/scanner/presentation/widgets/meal_label_suggestions.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_estimate_notice.dart';
@@ -18,7 +19,6 @@ import 'package:calora/features/scanner/presentation/widgets/scan_food_sheet.dar
 import 'package:calora/features/scanner/presentation/widgets/scan_items_list.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_meal_picker.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_nutrition_summary.dart';
-import 'package:calora/features/scanner/presentation/widgets/scan_result_image.dart';
 import 'package:calora/features/scanner/presentation/widgets/usda_food_confirmation_sheet.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:flutter/material.dart';
@@ -148,13 +148,7 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
       }
       if (!mounted) return;
       _barcodeSaveCompleted = true;
-      unawaited(
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.diary,
-          (route) => route.settings.name == AppRoutes.home,
-        ),
-      );
+      Navigator.pop(context, ScanResultOutcome.saved);
     } catch (_) {
       if (mounted) showCaloraMessage(context, 'Could not save diary entries.');
     } finally {
@@ -192,7 +186,6 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
       title: 'Scan result',
       child: ListView(
         children: <Widget>[
-          const CaloraSection(child: ScanResultImage()),
           if (request.mealLabelSuggestions.isNotEmpty)
             CaloraSection(
               child: MealLabelSuggestions(
@@ -237,13 +230,7 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
                   child: CaloraActionButton(
                     label: 'Scan again',
                     style: CaloraActionButtonStyle.secondary,
-                    onPressed: () => unawaited(
-                      Navigator.pushReplacementNamed(
-                        context,
-                        AppRoutes.scanner,
-                        arguments: request,
-                      ),
-                    ),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.lg),

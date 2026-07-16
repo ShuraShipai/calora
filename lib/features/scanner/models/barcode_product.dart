@@ -19,8 +19,9 @@ class BarcodeProduct {
     required Map<String, dynamic> product,
   }) {
     final nutriments = _map(product['nutriments']);
-    final hasServingNutrition = nutriments.keys.any(
-      (key) => key.endsWith('_serving'),
+    final hasServingNutrition = _hasCompleteNutrition(
+      nutriments,
+      suffix: '_serving',
     );
     final suffix = hasServingNutrition ? '_serving' : '_100g';
     final servingSize = _text(product['serving_size']);
@@ -31,10 +32,10 @@ class BarcodeProduct {
           ? _text(product['product_name'])
           : _text(product['generic_name']),
       brand: _text(product['brands']),
-      servingLabel: servingSize.isNotEmpty
-          ? servingSize
-          : hasServingNutrition
-          ? '1 serving'
+      servingLabel: hasServingNutrition
+          ? servingSize.isNotEmpty
+                ? servingSize
+                : '1 serving'
           : '100 g',
       calories: _nutrition(nutriments, 'energy-kcal$suffix'),
       protein: _nutrition(nutriments, 'proteins$suffix'),
@@ -63,4 +64,14 @@ class BarcodeProduct {
     if (value is num) return value.round();
     return num.tryParse(value?.toString() ?? '')?.round() ?? 0;
   }
+
+  static bool _hasCompleteNutrition(
+    Map<String, dynamic> nutriments, {
+    required String suffix,
+  }) => <String>[
+    'energy-kcal',
+    'proteins',
+    'carbohydrates',
+    'fat',
+  ].every((nutrient) => nutriments['$nutrient$suffix'] != null);
 }

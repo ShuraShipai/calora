@@ -9,6 +9,8 @@ abstract interface class NetworkClient {
 }
 
 class DioNetworkClient implements NetworkClient {
+  static const _retryDelay = Duration(milliseconds: 500);
+
   factory DioNetworkClient({
     required NetworkConnectivityService connectivity,
     Dio? dio,
@@ -37,10 +39,7 @@ class DioNetworkClient implements NetworkClient {
     }
 
     try {
-      final response = await _dio.getUri<dynamic>(
-        uri,
-        options: Options(headers: headers),
-      );
+      final response = await _getWithRetry(uri, headers: headers);
       final body = response.data;
       if (body is Map<String, dynamic>) return body;
       if (body is Map) {
@@ -58,6 +57,27 @@ class DioNetworkClient implements NetworkClient {
     } on Object {
       throw const NetworkException.unexpected();
     }
+  }
+
+  Future<Response<dynamic>> _getWithRetry(
+    Uri uri, {
+    Map<String, String>? headers,
+  }) async {
+    try {
+      return await _get(uri, headers: headers);
+    } on DioException catch (error) {
+      if (!_isTransientServerError(error)) rethrow;
+      await Future<void>.delayed(_retryDelay);
+      return _get(uri, headers: headers);
+    }
+  }
+
+  Future<Response<dynamic>> _get(Uri uri, {Map<String, String>? headers}) =>
+      _dio.getUri<dynamic>(uri, options: Options(headers: headers));
+
+  bool _isTransientServerError(DioException error) {
+    final statusCode = error.response?.statusCode;
+    return statusCode == 429 || (statusCode != null && statusCode >= 500);
   }
 
   NetworkException _mapDioException(DioException error) {
