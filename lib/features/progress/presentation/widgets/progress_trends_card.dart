@@ -10,11 +10,13 @@ class ProgressTrendsCard extends StatelessWidget {
     required this.weightValues,
     required this.waterValues,
     required this.labels,
+    required this.weightLabel,
   });
 
   final List<double> weightValues;
   final List<double> waterValues;
   final List<String> labels;
+  final String weightLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,13 @@ class ProgressTrendsCard extends StatelessWidget {
             values: weightValues,
             height: AppSizes.chart,
             showLastPoint: weightValues.isNotEmpty,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            weightLabel,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: context.colors.inkSoft,
+            ),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.section),

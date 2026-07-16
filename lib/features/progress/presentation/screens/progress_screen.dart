@@ -20,23 +20,16 @@ class ProgressScreen extends StatefulWidget {
 }
 
 class _ProgressScreenState extends State<ProgressScreen> {
-  var _selectedFilter = 1;
-  ProgressDateRange? _customRange;
+  DateTime _selectedDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     final diary = context.watch<DiaryProvider>();
     final progress = context.watch<ProgressProvider>();
     final goals = _goalsFor(context.watch<AuthProvider>().profile?.onboarding);
-    final range = _rangeForFilter(DateTime.now());
-    final days = range.days;
-    final calories = days
-        .map((day) => diary.nutritionFor(day).calories.toDouble())
-        .toList();
-    final normalizedCalories = calories
-        .map((value) => goals.calorieChartValue(value.round()))
-        .toList();
-    final water = days
+    final dailyRange = ProgressDateRange.day(_selectedDay);
+    final trendRange = ProgressDateRange.week(DateTime.now());
+    final water = trendRange.days
         .map((day) => _waterFor(progress.waterEntries, day).toDouble())
         .toList();
     final waterMaximum = water.fold<double>(
@@ -46,18 +39,23 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final normalizedWater = water
         .map((value) => waterMaximum == 0 ? 0.0 : value / waterMaximum)
         .toList();
-    final weights = _weightValues(progress.weightEntries, range);
-    final totals = diary.nutritionBetween(range.start, range.end);
-    final count = days.length;
+    final weights = _weightValues(progress.weightEntries, trendRange);
+    final totals = diary.nutritionBetween(dailyRange.start, dailyRange.end);
+    final count = dailyRange.dayCount;
+    final calorieGoal = _calorieGoal(
+      context.watch<AuthProvider>().profile?.onboarding?.dailyCalorieTarget,
+    );
     return CaloraScreenScaffold(
       screenId: 'progress',
       body: ProgressPageBody(
-        selectedFilter: _selectedFilter,
-        onFilterSelected: _selectFilter,
-        calorieValues: normalizedCalories,
+        onPreviousDay: _showPreviousDay,
+        onNextDay: _selectedDay.isBefore(_startOfToday) ? _showNextDay : null,
+        calorieProgress: goals.calorieChartValue(totals.calories),
+        calorieGoal: calorieGoal,
         waterValues: normalizedWater,
         weightValues: weights,
-        labels: _labelsFor(range),
+        waterLabels: trendRange.weekdayLabels,
+        weightLabel: _weightLabel(progress.latestWeight?.weightKg),
         averageCalories: count == 0 ? 0 : (totals.calories / count).round(),
         proteinAverage: count == 0 ? 0 : (totals.protein / count).round(),
         carbohydrateAverage: count == 0 ? 0 : (totals.carbs / count).round(),
@@ -78,59 +76,19 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  ProgressDateRange _rangeForFilter(DateTime now) {
-    switch (_selectedFilter) {
-      case 0:
-        return ProgressDateRange.day(now);
-      case 1:
-        return ProgressDateRange.week(now);
-      case 2:
-        return ProgressDateRange.month(now);
-      case 3:
-        return ProgressDateRange.threeMonths(now);
-      case 4:
-        return _customRange ?? ProgressDateRange.week(now);
-      default:
-        return ProgressDateRange.week(now);
-    }
+  DateTime get _startOfToday {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
   }
 
-  Future<void> _selectFilter(int index) async {
-    if (index != 4) {
-      setState(() => _selectedFilter = index);
-      return;
-    }
-    final today = DateTime.now();
-    final selection = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2020),
-      lastDate: today,
-      initialDateRange: _customRange == null
-          ? DateTimeRange(
-              start: today.subtract(const Duration(days: 6)),
-              end: today,
-            )
-          : DateTimeRange(
-              start: _customRange!.start,
-              end: _customRange!.end.subtract(const Duration(days: 1)),
-            ),
+  void _showPreviousDay() {
+    setState(
+      () => _selectedDay = _selectedDay.subtract(const Duration(days: 1)),
     );
-    if (!mounted || selection == null) return;
-    setState(() {
-      _selectedFilter = index;
-      _customRange = ProgressDateRange(
-        DateTime(
-          selection.start.year,
-          selection.start.month,
-          selection.start.day,
-        ),
-        DateTime(
-          selection.end.year,
-          selection.end.month,
-          selection.end.day + 1,
-        ),
-      );
-    });
+  }
+
+  void _showNextDay() {
+    setState(() => _selectedDay = _selectedDay.add(const Duration(days: 1)));
   }
 
   int _waterFor(List<WaterEntry> entries, DateTime day) => entries
@@ -176,11 +134,13 @@ class _ProgressScreenState extends State<ProgressScreen> {
       first.month == second.month &&
       first.day == second.day;
 
-  List<String> _labelsFor(ProgressDateRange range) => switch (_selectedFilter) {
-    1 => range.weekdayLabels,
-    3 || 4 => range.compactDateLabels,
-    _ => range.dayOfMonthLabels,
-  };
+  String _weightLabel(double? latestWeightKg) => latestWeightKg == null
+      ? 'Last 7 days'
+      : 'Last 7 days · ${latestWeightKg.toStringAsFixed(1)} kg';
+
+  int _calorieGoal(int? value) => value != null && value > 0
+      ? value
+      : ProgressGoalMetrics.fallbackDailyCalorieTarget;
 
   ProgressGoalMetrics _goalsFor(OnboardingDetails? details) =>
       ProgressGoalMetrics(

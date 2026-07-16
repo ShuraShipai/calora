@@ -13,56 +13,67 @@ class Reminder {
   factory Reminder.defaults(ReminderKind kind) => switch (kind) {
     ReminderKind.breakfast => Reminder(
       kind: kind,
-      enabled: true,
-      hour: 8,
-      minute: 0,
+      enabled: false,
+      hour: null,
+      minute: null,
     ),
     ReminderKind.lunch => Reminder(
       kind: kind,
-      enabled: true,
-      hour: 13,
-      minute: 0,
+      enabled: false,
+      hour: null,
+      minute: null,
     ),
     ReminderKind.dinner => Reminder(
       kind: kind,
       enabled: false,
-      hour: 20,
-      minute: 0,
+      hour: null,
+      minute: null,
     ),
     ReminderKind.water => Reminder(
       kind: kind,
-      enabled: true,
-      hour: 9,
-      minute: 0,
+      enabled: false,
+      hour: null,
+      minute: null,
     ),
     ReminderKind.weight => Reminder(
       kind: kind,
-      enabled: true,
-      hour: 9,
-      minute: 0,
+      enabled: false,
+      hour: null,
+      minute: null,
     ),
     ReminderKind.diary => Reminder(
       kind: kind,
       enabled: false,
-      hour: 21,
-      minute: 30,
+      hour: null,
+      minute: null,
     ),
   };
 
   factory Reminder.fromMap(ReminderKind kind, Map<String, dynamic>? data) {
     final fallback = Reminder.defaults(kind);
+    final hour = (data?['hour'] as num?)?.toInt();
+    final minute = (data?['minute'] as num?)?.toInt();
+    final hasValidTime =
+        hour != null &&
+        hour >= 0 &&
+        hour < 24 &&
+        minute != null &&
+        minute >= 0 &&
+        minute < 60;
     return Reminder(
       kind: kind,
-      enabled: data?['enabled'] as bool? ?? fallback.enabled,
-      hour: (data?['hour'] as num?)?.toInt() ?? fallback.hour,
-      minute: (data?['minute'] as num?)?.toInt() ?? fallback.minute,
+      enabled: (data?['enabled'] as bool? ?? fallback.enabled) && hasValidTime,
+      hour: hasValidTime ? hour : null,
+      minute: hasValidTime ? minute : null,
     );
   }
 
   final ReminderKind kind;
   final bool enabled;
-  final int hour;
-  final int minute;
+  final int? hour;
+  final int? minute;
+
+  bool get hasTime => hour != null && minute != null;
 
   String get title => switch (kind) {
     ReminderKind.breakfast => 'Breakfast reminder',
@@ -83,18 +94,22 @@ class Reminder {
   };
 
   String get scheduleLabel {
-    final suffix = hour >= 12 ? 'PM' : 'AM';
-    final shownHour = hour % 12 == 0 ? 12 : hour % 12;
-    final time = '$shownHour:${minute.toString().padLeft(2, '0')} $suffix';
+    if (!hasTime) return 'Choose a time';
+    final selectedHour = hour!;
+    final selectedMinute = minute!;
+    final suffix = selectedHour >= 12 ? 'PM' : 'AM';
+    final shownHour = selectedHour % 12 == 0 ? 12 : selectedHour % 12;
+    final time =
+        '$shownHour:${selectedMinute.toString().padLeft(2, '0')} $suffix';
     return switch (kind) {
       ReminderKind.water => 'Every 2 hours from $time',
       ReminderKind.weight => 'Sundays, $time',
-      ReminderKind.diary => '$time',
+      ReminderKind.diary => time,
       _ => time,
     };
   }
 
-  Map<String, Object> toMap() => <String, Object>{
+  Map<String, Object?> toMap() => <String, Object?>{
     'enabled': enabled,
     'hour': hour,
     'minute': minute,
@@ -109,27 +124,37 @@ class Reminder {
 }
 
 class ReminderSettings {
-  const ReminderSettings(this.reminders);
+  const ReminderSettings(this.reminders, {this.needsLegacyReset = false});
 
   factory ReminderSettings.defaults() => ReminderSettings(
     ReminderKind.values.map(Reminder.defaults).toList(growable: false),
   );
 
-  factory ReminderSettings.fromMap(Map<String, dynamic>? data) =>
-      ReminderSettings(
-        ReminderKind.values
-            .map(
-              (kind) => Reminder.fromMap(
-                kind,
-                data?[kind.name] as Map<String, dynamic>?,
-              ),
-            )
-            .toList(growable: false),
+  factory ReminderSettings.fromMap(Map<String, dynamic>? data) {
+    const schemaVersion = 2;
+    if (data?['schemaVersion'] != schemaVersion) {
+      return ReminderSettings(
+        ReminderKind.values.map(Reminder.defaults).toList(growable: false),
+        needsLegacyReset: data != null,
       );
+    }
+    return ReminderSettings(
+      ReminderKind.values
+          .map(
+            (kind) => Reminder.fromMap(
+              kind,
+              data?[kind.name] as Map<String, dynamic>?,
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
 
   final List<Reminder> reminders;
+  final bool needsLegacyReset;
 
-  Map<String, Object> toMap() => <String, Object>{
+  Map<String, Object?> toMap() => <String, Object?>{
+    'schemaVersion': 2,
     for (final reminder in reminders) reminder.kind.name: reminder.toMap(),
     'updatedAt': FieldValue.serverTimestamp(),
   };

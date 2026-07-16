@@ -1,15 +1,38 @@
-import 'package:calora/features/profile/presentation/widgets/profile_page_header.dart';
-import 'package:calora/features/profile/presentation/widgets/profile_section.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:calora/features/profile/models/reminder.dart';
-import 'package:calora/features/profile/providers/reminder_provider.dart';
+import 'package:calora/features/profile/presentation/widgets/profile_page_header.dart';
+import 'package:calora/features/profile/presentation/widgets/profile_section.dart';
 import 'package:calora/features/profile/presentation/widgets/reminder_time_sheet.dart';
 import 'package:calora/features/profile/presentation/widgets/reminders_list.dart';
+import 'package:calora/features/profile/providers/reminder_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class RemindersScreen extends StatelessWidget {
+class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
+
+  @override
+  State<RemindersScreen> createState() => _RemindersScreenState();
+}
+
+class _RemindersScreenState extends State<RemindersScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _requestPermission());
+  }
+
+  Future<void> _requestPermission() async {
+    final permitted = await context
+        .read<ReminderProvider>()
+        .requestPermissionForEnabledReminders();
+    if (!mounted || permitted) return;
+    final message = context.read<ReminderProvider>().errorMessage;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message ?? 'Notifications are disabled.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     key: const ValueKey<String>('reminders'),

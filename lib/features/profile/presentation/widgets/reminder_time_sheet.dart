@@ -16,10 +16,12 @@ class _ReminderTimeSheetState extends State<ReminderTimeSheet> {
   @override
   void initState() {
     super.initState();
-    _time = TimeOfDay(
-      hour: widget.reminder.hour,
-      minute: widget.reminder.minute,
-    );
+    _time = widget.reminder.hasTime
+        ? TimeOfDay(
+            hour: widget.reminder.hour!,
+            minute: widget.reminder.minute!,
+          )
+        : TimeOfDay.now();
   }
 
   @override

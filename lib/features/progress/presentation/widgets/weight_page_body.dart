@@ -4,7 +4,6 @@ import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/features/progress/models/weight_entry.dart';
 import 'package:calora/features/progress/presentation/widgets/weight_history_list.dart';
 import 'package:calora/features/progress/presentation/widgets/weight_summary_cards.dart';
-import 'package:calora/features/progress/presentation/widgets/weight_trend_card.dart';
 import 'package:flutter/material.dart';
 
 class WeightPageBody extends StatelessWidget {
@@ -14,7 +13,6 @@ class WeightPageBody extends StatelessWidget {
     required this.currentWeightKg,
     required this.targetWeightKg,
     required this.monthlyChangeKg,
-    required this.trendValues,
     required this.entries,
   });
 
@@ -22,7 +20,6 @@ class WeightPageBody extends StatelessWidget {
   final double? currentWeightKg;
   final double? targetWeightKg;
   final double? monthlyChangeKg;
-  final List<double> trendValues;
   final List<WeightEntry> entries;
 
   @override
@@ -42,11 +39,6 @@ class WeightPageBody extends StatelessWidget {
             targetWeightKg: targetWeightKg,
             monthlyChangeKg: monthlyChangeKg,
           ),
-        ),
-        const SizedBox(height: AppSpacing.sectionGap),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.page),
-          child: WeightTrendCard(values: trendValues),
         ),
         const SizedBox(height: AppSpacing.sectionGap),
         Padding(

@@ -10,6 +10,7 @@ class ReminderProvider extends ChangeNotifier {
   final LocalNotificationService _notifications;
   ReminderSettings _settings = ReminderSettings.defaults();
   String? _uid;
+  bool _hasResolvedUser = false;
   bool _isLoading = false;
   bool _isSaving = false;
   String? _errorMessage;
@@ -19,33 +20,70 @@ class ReminderProvider extends ChangeNotifier {
   bool get isSaving => _isSaving;
   String? get errorMessage => _errorMessage;
 
+  Future<bool> requestPermissionForEnabledReminders() async {
+    if (!_settings.reminders.any(
+      (reminder) => reminder.enabled && reminder.hasTime,
+    )) {
+      return true;
+    }
+    return _requestNotificationPermission();
+  }
+
+  Future<bool> _requestNotificationPermission() async {
+    try {
+      if (await _notifications.requestPermission()) return true;
+      _errorMessage = 'Notifications are disabled. Enable them in Settings.';
+    } catch (_) {
+      _errorMessage = 'Could not request notification permission.';
+    }
+    notifyListeners();
+    return false;
+  }
+
   Future<void> updateUser(String? uid) async {
-    if (_uid == uid) return;
+    if (_hasResolvedUser && _uid == uid) return;
+    _hasResolvedUser = true;
     _uid = uid;
     _settings = ReminderSettings.defaults();
     _errorMessage = null;
     if (uid == null) {
+      try {
+        await _notifications.syncReminders(const <Reminder>[]);
+      } catch (_) {
+        // A failed cleanup must not prevent sign-out.
+      }
       notifyListeners();
       return;
     }
     _isLoading = true;
     notifyListeners();
     try {
-      _settings = await _service.load(uid);
+      final settings = await _service.load(uid);
+      if (_uid != uid) return;
+      _settings = settings;
+      if (settings.needsLegacyReset) {
+        await _service.save(uid, settings);
+      }
+      await _notifications.syncReminders(settings.reminders);
     } catch (_) {
-      _errorMessage = 'Could not load reminders.';
+      if (_uid == uid) _errorMessage = 'Could not load reminders.';
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (_uid == uid) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
   Future<bool> save(Reminder updated) async {
     final uid = _uid;
     if (uid == null) return false;
-    if (updated.enabled && !await _notifications.requestPermission()) {
-      _errorMessage = 'Notifications are disabled. Enable them in Settings.';
+    if (updated.enabled && !updated.hasTime) {
+      _errorMessage = 'Choose a time before enabling this reminder.';
       notifyListeners();
+      return false;
+    }
+    if (updated.enabled && !await _requestNotificationPermission()) {
       return false;
     }
     final previous = _settings;
@@ -59,7 +97,13 @@ class ReminderProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await _service.save(uid, _settings);
-      await _notifications.syncReminders(_settings.reminders);
+      try {
+        await _notifications.syncReminders(_settings.reminders);
+      } catch (_) {
+        _errorMessage =
+            'Reminder saved, but notifications could not be scheduled on this device.';
+        return false;
+      }
       return true;
     } catch (_) {
       _settings = previous;

@@ -56,7 +56,6 @@ class WeightScreen extends StatelessWidget {
         currentWeightKg: progress.latestWeight?.weightKg,
         targetWeightKg: target,
         monthlyChangeKg: progress.weightChangeThisMonth,
-        trendValues: progress.weightTrend,
         entries: progress.weightEntries,
       ),
     );

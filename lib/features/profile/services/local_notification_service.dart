@@ -1,5 +1,6 @@
 import 'package:calora/features/profile/models/reminder.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -14,17 +15,28 @@ class FlutterLocalNotificationService implements LocalNotificationService {
 
   final FlutterLocalNotificationsPlugin _plugin;
   bool _initialized = false;
+  Future<void>? _initializing;
 
   Future<void> _initialize() async {
     if (_initialized) return;
-    tz.initializeTimeZones();
-    await _plugin.initialize(
-      const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        iOS: DarwinInitializationSettings(),
-      ),
-    );
-    _initialized = true;
+    await (_initializing ??= _initializePlugin());
+  }
+
+  Future<void> _initializePlugin() async {
+    try {
+      tz.initializeTimeZones();
+      final timezone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timezone.identifier));
+      await _plugin.initialize(
+        const InitializationSettings(
+          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          iOS: DarwinInitializationSettings(),
+        ),
+      );
+      _initialized = true;
+    } finally {
+      _initializing = null;
+    }
   }
 
   @override
@@ -59,6 +71,7 @@ class FlutterLocalNotificationService implements LocalNotificationService {
       }
     }
     for (final reminder in reminders.where((reminder) => reminder.enabled)) {
+      if (!reminder.hasTime) continue;
       if (reminder.kind == ReminderKind.water) {
         for (var index = 0; index < 7; index++) {
           await _schedule(
@@ -74,18 +87,21 @@ class FlutterLocalNotificationService implements LocalNotificationService {
   }
 
   Future<void> _schedule(Reminder reminder, int id, {int hourOffset = 0}) {
-    final hour = (reminder.hour + hourOffset) % 24;
+    final hour = (reminder.hour! + hourOffset) % 24;
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      reminder.minute,
-    );
-    if (!scheduled.isAfter(now))
+    var scheduled = reminder.kind == ReminderKind.weight
+        ? _nextSunday(now, hour, reminder.minute!)
+        : tz.TZDateTime(
+            tz.local,
+            now.year,
+            now.month,
+            now.day,
+            hour,
+            reminder.minute!,
+          );
+    if (reminder.kind != ReminderKind.weight && !scheduled.isAfter(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
+    }
     return _plugin.zonedSchedule(
       id,
       reminder.title,
@@ -96,15 +112,37 @@ class FlutterLocalNotificationService implements LocalNotificationService {
           'reminders',
           'Reminders',
           channelDescription: 'Calora health reminders',
-          importance: Importance.defaultImportance,
+          importance: Importance.high,
+          priority: Priority.high,
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: reminder.kind == ReminderKind.weight
           ? DateTimeComponents.dayOfWeekAndTime
           : DateTimeComponents.time,
     );
+  }
+
+  tz.TZDateTime _nextSunday(tz.TZDateTime now, int hour, int minute) {
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+    final daysUntilSunday = (DateTime.sunday - scheduled.weekday) % 7;
+    scheduled = scheduled.add(Duration(days: daysUntilSunday));
+    if (!scheduled.isAfter(now)) {
+      scheduled = scheduled.add(const Duration(days: 7));
+    }
+    return scheduled;
   }
 
   int _id(ReminderKind kind) => 700 + kind.index * 10;

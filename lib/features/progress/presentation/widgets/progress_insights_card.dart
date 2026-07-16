@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 class ProgressInsightsCard extends StatelessWidget {
   const ProgressInsightsCard({
     super.key,
-    required this.calorieValues,
-    required this.labels,
+    required this.calorieProgress,
+    required this.calorieGoal,
     required this.averageCalories,
     required this.proteinAverage,
     required this.carbohydrateAverage,
@@ -18,8 +18,8 @@ class ProgressInsightsCard extends StatelessWidget {
     required this.fatFilled,
   });
 
-  final List<double> calorieValues;
-  final List<String> labels;
+  final double calorieProgress;
+  final int calorieGoal;
   final int averageCalories;
   final int proteinAverage;
   final int carbohydrateAverage;
@@ -36,30 +36,12 @@ class ProgressInsightsCard extends StatelessWidget {
         children: <Widget>[
           Text('Daily calorie intake', style: _sectionLabel(context)),
           const SizedBox(height: AppSpacing.lg),
-          CaloraBarChart(
-            values: calorieValues,
-            labels: labels,
-            highlighted: calorieValues.isEmpty
-                ? const <int>{}
-                : <int>{calorieValues.length - 1},
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                'Daily average',
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colors.inkSoft,
-                ),
-              ),
-              Text(
-                '$averageCalories kcal',
-                style: context.textTheme.bodySmall?.copyWith(
-                  fontWeight: AppFontWeights.bold,
-                ),
-              ),
-            ],
+          Center(
+            child: CaloraProgressRing(
+              value: calorieProgress,
+              primaryText: '$averageCalories',
+              secondaryText: 'of $calorieGoal kcal',
+            ),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.section),
