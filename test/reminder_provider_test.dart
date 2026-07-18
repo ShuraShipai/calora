@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:calora/features/profile/models/reminder.dart';
 import 'package:calora/features/profile/providers/reminder_provider.dart';
 import 'package:calora/features/profile/services/local_notification_service.dart';
@@ -79,6 +81,63 @@ void main() {
       );
     });
 
+    test('requires a complete water schedule before enabling it', () async {
+      await provider.updateUser('user-1');
+      final water = provider.reminders.firstWhere(
+        (reminder) => reminder.kind == ReminderKind.water,
+      );
+
+      final saved = await provider.save(water.copyWith(enabled: true));
+
+      expect(saved, isFalse);
+      expect(reminders.savedSettings, isNull);
+      expect(
+        provider.errorMessage,
+        'Choose a valid interval, start time, and end time first.',
+      );
+    });
+
+    test('saves and reschedules a configured water reminder', () async {
+      await provider.updateUser('user-1');
+      final water = provider.reminders.firstWhere(
+        (reminder) => reminder.kind == ReminderKind.water,
+      );
+      final configured = water.copyWith(
+        enabled: true,
+        hour: 8,
+        minute: 0,
+        waterIntervalMinutes: 45,
+        waterEndHour: 20,
+        waterEndMinute: 0,
+      );
+
+      final saved = await provider.save(configured);
+
+      expect(saved, isTrue);
+      final savedWater = reminders.savedSettings!.reminders.firstWhere(
+        (reminder) => reminder.kind == ReminderKind.water,
+      );
+      expect(savedWater.waterIntervalMinutes, 45);
+      expect(savedWater.waterEndHour, 20);
+      expect(notifications.synced.last, contains(savedWater));
+    });
+
+    test('does not save while the active user settings are loading', () async {
+      final loading = Completer<ReminderSettings>();
+      reminders.loadOverride = (_) => loading.future;
+      final loadingUpdate = provider.updateUser('user-1');
+
+      final saved = await provider.save(
+        provider.reminders.first.copyWith(enabled: true, hour: 8, minute: 0),
+      );
+
+      expect(saved, isFalse);
+      expect(reminders.savedSettings, isNull);
+
+      loading.complete(ReminderSettings.defaults());
+      await loadingUpdate;
+    });
+
     test('keeps the saved setting when device scheduling fails', () async {
       notifications.failSync = true;
       await provider.updateUser('user-1');
@@ -115,11 +174,12 @@ class _FakeReminderService implements ReminderService {
   ReminderSettings settings = ReminderSettings.defaults();
   String? loadedUid;
   ReminderSettings? savedSettings;
+  Future<ReminderSettings> Function(String uid)? loadOverride;
 
   @override
   Future<ReminderSettings> load(String uid) async {
     loadedUid = uid;
-    return settings;
+    return loadOverride?.call(uid) ?? settings;
   }
 
   @override

@@ -14,6 +14,8 @@ class FlutterLocalNotificationService implements LocalNotificationService {
     : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   final FlutterLocalNotificationsPlugin _plugin;
+  static const _waterNotificationBaseId = 1000;
+  static const _maximumWaterNotifications = 50;
   bool _initialized = false;
   Future<void>? _initializing;
 
@@ -65,39 +67,60 @@ class FlutterLocalNotificationService implements LocalNotificationService {
     for (final kind in ReminderKind.values) {
       await _plugin.cancel(_id(kind));
       if (kind == ReminderKind.water) {
+        for (var index = 0; index < _maximumWaterNotifications; index++) {
+          await _plugin.cancel(_waterNotificationBaseId + index);
+        }
+        // Removes schedules made by versions that used the fixed two-hour plan.
         for (var index = 1; index < 7; index++) {
           await _plugin.cancel(_id(kind) + index);
         }
       }
     }
     for (final reminder in reminders.where((reminder) => reminder.enabled)) {
-      if (!reminder.hasTime) continue;
       if (reminder.kind == ReminderKind.water) {
-        for (var index = 0; index < 7; index++) {
-          await _schedule(
-            reminder,
-            _id(reminder.kind) + index,
-            hourOffset: index * 2,
-          );
-        }
-      } else {
-        await _schedule(reminder, _id(reminder.kind));
+        if (reminder.hasWaterSchedule) await _scheduleWater(reminder);
+        continue;
       }
+      if (!reminder.hasTime) continue;
+      await _schedule(reminder, _id(reminder.kind));
     }
   }
 
-  Future<void> _schedule(Reminder reminder, int id, {int hourOffset = 0}) {
-    final hour = (reminder.hour! + hourOffset) % 24;
+  Future<void> _scheduleWater(Reminder reminder) async {
+    final interval = reminder.waterIntervalMinutes!;
+    final start = reminder.hour! * 60 + reminder.minute!;
+    final end = reminder.waterEndHour! * 60 + reminder.waterEndMinute!;
+    final count = ((end - start) ~/ interval) + 1;
+    if (count > _maximumWaterNotifications) {
+      throw ArgumentError(
+        'The selected water schedule creates more than '
+        '$_maximumWaterNotifications reminders a day.',
+      );
+    }
+    for (var index = 0; index < count; index++) {
+      final scheduledMinutes = start + index * interval;
+      await _schedule(
+        reminder,
+        _waterNotificationBaseId + index,
+        hour: scheduledMinutes ~/ 60,
+        minute: scheduledMinutes % 60,
+      );
+    }
+  }
+
+  Future<void> _schedule(Reminder reminder, int id, {int? hour, int? minute}) {
+    final scheduledHour = hour ?? reminder.hour!;
+    final scheduledMinute = minute ?? reminder.minute!;
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = reminder.kind == ReminderKind.weight
-        ? _nextSunday(now, hour, reminder.minute!)
+        ? _nextSunday(now, scheduledHour, scheduledMinute)
         : tz.TZDateTime(
             tz.local,
             now.year,
             now.month,
             now.day,
-            hour,
-            reminder.minute!,
+            scheduledHour,
+            scheduledMinute,
           );
     if (reminder.kind != ReminderKind.weight && !scheduled.isAfter(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
@@ -114,6 +137,7 @@ class FlutterLocalNotificationService implements LocalNotificationService {
           channelDescription: 'Calora health reminders',
           importance: Importance.high,
           priority: Priority.high,
+          playSound: true,
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,

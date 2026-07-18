@@ -44,10 +44,16 @@ class GoalsScreen extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => GoalEditSheet(
-        title: title,
-        value: value,
-        onSave: (value) => _saveGoal(context, title, value, unit),
+      showDragHandle: false,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        child: GoalEditSheet(
+          title: title,
+          value: value,
+          onSave: (value) => _saveGoal(context, title, value, unit),
+        ),
       ),
     );
   }

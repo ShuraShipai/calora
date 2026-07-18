@@ -26,43 +26,30 @@ class OpenFoodFactsProductLookupService implements FoodProductLookupService {
     }
 
     try {
-      return await _lookupOnHost(
-        barcode: normalizedBarcode,
-        host: 'world.openfoodfacts.org',
-      );
+      return await _lookupProduct(normalizedBarcode);
     } on BarcodeLookupException {
       rethrow;
     } on NetworkException catch (error) {
-      if (error.kind == NetworkExceptionKind.server) {
-        try {
-          return await _lookupOnHost(
-            barcode: normalizedBarcode,
-            host: 'api.openfoodfacts.org',
-          );
-        } on NetworkException catch (fallbackError) {
-          throw BarcodeLookupException(fallbackError.message);
-        }
-      }
       throw BarcodeLookupException(error.message);
     } on Object catch (_) {
       throw BarcodeLookupException('Could not reach the food database.');
     }
   }
 
-  Future<BarcodeProduct?> _lookupOnHost({
-    required String barcode,
-    required String host,
-  }) async {
+  Future<BarcodeProduct?> _lookupProduct(String barcode) async {
     final body = await _networkClient.getJson(
-      Uri.https(host, '/api/v2/product/$barcode.json', <String, String>{
-        'fields': 'product_name,generic_name,brands,serving_size,nutriments',
-      }),
+      Uri.https(
+        'world.openfoodfacts.org',
+        '/api/v3/product/$barcode',
+        <String, String>{
+          'fields': 'product_name,generic_name,brands,serving_size,nutriments',
+        },
+      ),
       headers: const <String, String>{
         'Accept': 'application/json',
-        'User-Agent': 'Calora/1.0',
+        'User-Agent': 'Calora/1.0 (https://github.com/ShuraShipai/calora)',
       },
     );
-    if (body['status'] != 1) return null;
     final product = body['product'];
     if (product is! Map<String, dynamic>) return null;
     final result = BarcodeProduct.fromOpenFoodFacts(

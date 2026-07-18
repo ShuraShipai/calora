@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_page.dart';
@@ -9,17 +8,14 @@ import 'package:calora/features/diary/models/diary_entry.dart';
 import 'package:calora/features/diary/models/diary_food_source.dart';
 import 'package:calora/features/diary/models/meal_type.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
-import 'package:calora/features/scanner/models/meal_label_suggestion.dart';
 import 'package:calora/features/scanner/models/scan_item.dart';
 import 'package:calora/features/scanner/models/scan_result_outcome.dart';
 import 'package:calora/features/scanner/models/scanner_request.dart';
-import 'package:calora/features/scanner/presentation/widgets/meal_label_suggestions.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_estimate_notice.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_food_sheet.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_items_list.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_meal_picker.dart';
 import 'package:calora/features/scanner/presentation/widgets/scan_nutrition_summary.dart';
-import 'package:calora/features/scanner/presentation/widgets/usda_food_confirmation_sheet.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,13 +35,13 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
   bool _barcodeSaveCompleted = false;
   bool _barcodeLookupStarted = false;
 
-  ScannerRequest get request => _request ?? const ScannerRequest.meal();
+  ScannerRequest get request => _request ?? const ScannerRequest.barcode();
 
   void _resolveRequest() {
     if (_request != null) return;
     _request = ModalRoute.of(context)?.settings.arguments as ScannerRequest?;
     _meal = request.mealType.label;
-    if (request.mode == ScannerMode.barcode && request.barcodeValue != null) {
+    if (request.barcodeValue != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _lookupBarcode());
     }
   }
@@ -82,45 +78,7 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
   }
 
   Future<void> _saveToDiary() async {
-    if (request.mode == ScannerMode.barcode) {
-      await _saveBarcodeToDiary();
-      return;
-    }
-    if (_items.isEmpty || _saving) return;
-    setState(() => _saving = true);
-    try {
-      final meal = MealTypeX.fromStored(_meal);
-      for (final item in _items) {
-        await context.read<DiaryProvider>().add(
-          DiaryEntry(
-            id: '',
-            meal: meal.storedValue,
-            name: item.name,
-            serving: '${item.amount} ${item.unit}',
-            calories: item.kcal,
-            protein: item.protein,
-            carbs: item.carbs,
-            fat: item.fat,
-            fiber: item.fiber,
-            sugar: item.sugar,
-            loggedAt: DateTime.now(),
-            source: request.mode == ScannerMode.barcode
-                ? DiaryFoodSource.barcode
-                : DiaryFoodSource.scanned,
-          ),
-        );
-      }
-      if (!mounted) return;
-      await Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.diary,
-        (route) => route.settings.name == AppRoutes.home,
-      );
-    } catch (_) {
-      if (mounted) showCaloraMessage(context, 'Could not save diary entries.');
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
+    await _saveBarcodeToDiary();
   }
 
   Future<void> _saveBarcodeToDiary() async {
@@ -186,14 +144,6 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
       title: 'Scan result',
       child: ListView(
         children: <Widget>[
-          if (request.mealLabelSuggestions.isNotEmpty)
-            CaloraSection(
-              child: MealLabelSuggestions(
-                suggestions: request.mealLabelSuggestions,
-                onSelected: (suggestion) =>
-                    unawaited(_addSuggestion(suggestion)),
-              ),
-            ),
           CaloraSection(child: ScanNutritionSummary(items: _items)),
           const CaloraSection(child: ScanEstimateNotice()),
           CaloraSection(
@@ -246,14 +196,5 @@ class _ScanResultsScreenState extends State<ScanResultsScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> _addSuggestion(MealLabelSuggestion suggestion) async {
-    final item = await showCaloraSheet<ScanItem>(
-      context: context,
-      builder: (context) => UsdaFoodConfirmationSheet(suggestion: suggestion),
-    );
-    if (!mounted || item == null) return;
-    setState(() => _items.add(item));
   }
 }

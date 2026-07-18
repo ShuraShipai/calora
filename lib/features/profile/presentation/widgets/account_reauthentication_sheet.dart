@@ -1,6 +1,6 @@
 import 'package:calora/core/theme/app_tokens.dart';
+import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_action_button.dart';
-import 'package:calora/core/widgets/calora_form.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:flutter/material.dart';
 
@@ -32,11 +32,22 @@ class _AccountReauthenticationSheetState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          CaloraLabeledField(
-            label: 'Password',
-            controller: _passwordController,
-            validator: (value) =>
-                value == null || value.isEmpty ? 'Enter your password.' : null,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('Password', style: context.textTheme.labelMedium),
+              const SizedBox(height: AppSpacing.sm),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                textInputAction: TextInputAction.done,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Enter your password.'
+                    : null,
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.section),
           CaloraActionButton(

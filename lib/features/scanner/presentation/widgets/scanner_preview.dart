@@ -9,10 +9,7 @@ class ScannerPreview extends StatelessWidget {
     required this.flashEnabled,
     required this.onClose,
     required this.onFlash,
-    required this.onGallery,
-    required this.onCapture,
     required this.onCancel,
-    required this.mode,
     this.cameraPreview,
   });
 
@@ -20,10 +17,7 @@ class ScannerPreview extends StatelessWidget {
   final bool flashEnabled;
   final VoidCallback onClose;
   final VoidCallback onFlash;
-  final VoidCallback onGallery;
-  final VoidCallback onCapture;
   final VoidCallback onCancel;
-  final String mode;
   final Widget? cameraPreview;
 
   @override
@@ -101,53 +95,12 @@ class ScannerPreview extends StatelessWidget {
                     borderRadius: AppRadii.pillBorder,
                   ),
                   child: Text(
-                    mode == 'barcode'
-                        ? 'Place the product barcode inside the frame.'
-                        : 'Place the full meal inside the frame for a better estimate.',
+                    'Place the product barcode inside the frame.',
                     textAlign: TextAlign.center,
                     style: context.textTheme.labelMedium?.copyWith(
                       color: context.colors.onAccent,
                     ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    _control(
-                      context,
-                      tooltip: 'Choose from gallery',
-                      icon: Icons.photo_outlined,
-                      onPressed: onGallery,
-                      size: AppSizes.scannerAction,
-                    ),
-                    const SizedBox(width: AppSpacing.xl),
-                    Semantics(
-                      button: true,
-                      label: mode == 'barcode'
-                          ? 'Scan barcode'
-                          : 'Capture meal',
-                      child: GestureDetector(
-                        onTap: onCapture,
-                        child: Container(
-                          width: AppSizes.captureButton,
-                          height: AppSizes.captureButton,
-                          decoration: BoxDecoration(
-                            color: context.colors.onAccent,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: context.colors.onAccent.withValues(
-                                alpha: AppOpacity.disabled,
-                              ),
-                              width: AppSpacing.xs,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.xl),
-                    const SizedBox.square(dimension: AppSizes.scannerAction),
-                  ],
                 ),
               ],
             ),
@@ -173,9 +126,7 @@ class ScannerPreview extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sectionGap),
                     Text(
-                      mode == 'barcode'
-                          ? 'Looking up product'
-                          : 'Analysing your meal',
+                      'Looking up product',
                       style: context.textTheme.titleMedium?.copyWith(
                         color: context.colors.onAccent,
                       ),

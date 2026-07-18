@@ -12,8 +12,8 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final greeting = name.trim().isEmpty
-        ? 'Good morning'
-        : 'Good morning, $name';
+        ? 'Calories in check'
+        : 'Calories in check, $name';
     return Row(
       children: <Widget>[
         Expanded(

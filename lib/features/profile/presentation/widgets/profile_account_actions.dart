@@ -10,7 +10,7 @@ class ProfileAccountActions extends StatelessWidget {
   });
 
   final VoidCallback onLogOut;
-  final VoidCallback onDeleteAccount;
+  final VoidCallback? onDeleteAccount;
 
   @override
   Widget build(BuildContext context) {

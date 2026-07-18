@@ -22,7 +22,11 @@ class ReminderProvider extends ChangeNotifier {
 
   Future<bool> requestPermissionForEnabledReminders() async {
     if (!_settings.reminders.any(
-      (reminder) => reminder.enabled && reminder.hasTime,
+      (reminder) =>
+          reminder.enabled &&
+          (reminder.kind == ReminderKind.water
+              ? reminder.hasWaterSchedule
+              : reminder.hasTime),
     )) {
       return true;
     }
@@ -77,9 +81,14 @@ class ReminderProvider extends ChangeNotifier {
 
   Future<bool> save(Reminder updated) async {
     final uid = _uid;
-    if (uid == null) return false;
-    if (updated.enabled && !updated.hasTime) {
-      _errorMessage = 'Choose a time before enabling this reminder.';
+    if (uid == null || _isLoading || _isSaving) return false;
+    if (updated.enabled &&
+        (updated.kind == ReminderKind.water
+            ? !updated.hasWaterSchedule
+            : !updated.hasTime)) {
+      _errorMessage = updated.kind == ReminderKind.water
+          ? 'Choose a valid interval, start time, and end time first.'
+          : 'Choose a time before enabling this reminder.';
       notifyListeners();
       return false;
     }

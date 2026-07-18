@@ -13,16 +13,15 @@ import 'package:calora/features/home/services/home_dashboard_service.dart';
 import 'package:calora/features/progress/providers/progress_provider.dart';
 import 'package:calora/features/progress/services/progress_service.dart';
 import 'package:calora/features/profile/providers/reminder_provider.dart';
+import 'package:calora/features/profile/providers/data_export_provider.dart';
+import 'package:calora/features/profile/services/data_export_service.dart';
 import 'package:calora/features/profile/services/local_notification_service.dart';
 import 'package:calora/features/profile/services/reminder_service.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
-import 'package:calora/features/scanner/providers/meal_capture_provider.dart';
 import 'package:calora/features/scanner/providers/scanner_provider.dart';
 import 'package:calora/features/scanner/providers/usda_nutrition_lookup_provider.dart';
 import 'package:calora/features/scanner/services/barcode_scanner_service.dart';
 import 'package:calora/features/scanner/services/food_product_lookup_service.dart';
-import 'package:calora/features/scanner/services/meal_image_capture_service.dart';
-import 'package:calora/features/scanner/services/meal_label_suggestion_service.dart';
 import 'package:calora/features/scanner/services/usda_food_nutrition_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -50,6 +49,7 @@ List<SingleChildWidget> appProviders({
   Provider<DiaryService>(create: (_) => FirestoreDiaryService()),
   Provider<ProgressService>(create: (_) => FirestoreProgressService()),
   Provider<ReminderService>(create: (_) => FirestoreReminderService()),
+  Provider<DataExportService>(create: (_) => ShareDataExportService()),
   Provider<LocalNotificationService>(
     create: (_) => FlutterLocalNotificationService(),
   ),
@@ -67,12 +67,6 @@ List<SingleChildWidget> appProviders({
     ),
   ),
   Provider<BarcodeScannerService>(create: (_) => BarcodeScannerService()),
-  Provider<MealImageCaptureService>(
-    create: (_) => ImagePickerMealImageCaptureService(),
-  ),
-  Provider<MealLabelSuggestionService>(
-    create: (_) => MlKitMealLabelSuggestionService(),
-  ),
   Provider<UsdaFoodNutritionService>(
     create: (_) => FoodDataCentralNutritionService(),
   ),
@@ -102,18 +96,15 @@ List<SingleChildWidget> appProviders({
     ),
     update: (_, auth, reminders) => reminders!..updateUser(auth.profile?.uid),
   ),
+  ChangeNotifierProvider<DataExportProvider>(
+    create: (context) => DataExportProvider(context.read<DataExportService>()),
+  ),
   ChangeNotifierProvider<BarcodeLookupProvider>(
     create: (context) =>
         BarcodeLookupProvider(context.read<FoodProductLookupService>()),
   ),
   ChangeNotifierProvider<ScannerProvider>(
     create: (context) => ScannerProvider(context.read<BarcodeScannerService>()),
-  ),
-  ChangeNotifierProvider<MealCaptureProvider>(
-    create: (context) => MealCaptureProvider(
-      context.read<MealImageCaptureService>(),
-      context.read<MealLabelSuggestionService>(),
-    ),
   ),
   ChangeNotifierProvider<UsdaNutritionLookupProvider>(
     create: (context) =>

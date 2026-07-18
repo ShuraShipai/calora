@@ -17,7 +17,7 @@ class ScanEstimateNotice extends StatelessWidget {
         borderRadius: AppRadii.inputBorder,
       ),
       child: Text(
-        'Nutrition values are estimated from the image. Review and edit each item before saving.',
+        'Food suggestions come from the photo. Nutrition is calculated after you confirm the food and amount.',
         style: context.textTheme.bodySmall?.copyWith(
           color: context.colors.inkSoft,
         ),

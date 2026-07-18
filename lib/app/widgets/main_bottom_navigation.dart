@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/theme/theme_context.dart';
+import 'package:calora/features/scanner/models/scanner_request.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -50,7 +51,11 @@ class MainBottomNavigation extends StatelessWidget {
                     child: IconButton(
                       tooltip: 'Scanner',
                       onPressed: () => unawaited(
-                        Navigator.pushNamed(context, AppRoutes.scanner),
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.scanner,
+                          arguments: const ScannerRequest.barcode(),
+                        ),
                       ),
                       style: IconButton.styleFrom(
                         backgroundColor: context.colors.moss,

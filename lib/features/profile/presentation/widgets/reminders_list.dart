@@ -9,10 +9,12 @@ class RemindersList extends StatelessWidget {
     required this.reminders,
     required this.onChanged,
     required this.onEdit,
+    required this.isBusy,
   });
   final List<Reminder> reminders;
   final ValueChanged<Reminder> onChanged;
   final ValueChanged<Reminder> onEdit;
+  final bool isBusy;
 
   @override
   Widget build(BuildContext context) => CaloraGroupedList(
@@ -25,7 +27,7 @@ class RemindersList extends StatelessWidget {
                 : context.colors.inkSoft,
             title: reminder.title,
             subtitle: reminder.scheduleLabel,
-            onTap: () => onEdit(reminder),
+            onTap: isBusy ? null : () => onEdit(reminder),
             trailing: Switch.adaptive(
               value: reminder.enabled,
               onChanged: (enabled) =>

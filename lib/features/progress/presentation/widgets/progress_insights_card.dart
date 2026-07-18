@@ -34,7 +34,26 @@ class ProgressInsightsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Daily calorie intake', style: _sectionLabel(context)),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  'Daily calorie intake',
+                  style: _sectionLabel(context),
+                ),
+              ),
+              Semantics(
+                label: 'Swipe left or right to change day',
+                child: ExcludeSemantics(
+                  child: Icon(
+                    Icons.swipe,
+                    size: AppSizes.iconSmall,
+                    color: context.colors.inkFaint,
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: AppSpacing.lg),
           Center(
             child: CaloraProgressRing(

@@ -18,6 +18,7 @@ class WeightScreen extends StatelessWidget {
         ?.unitSystem;
     final entry = await showCaloraSheet<WeightEntryDraft>(
       context: context,
+      showDragHandle: false,
       builder: (_) => LogWeightSheet(unitSystem: unitSystem),
     );
     if (!context.mounted || entry == null) return;

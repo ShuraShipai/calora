@@ -8,8 +8,11 @@ void main() {
   test('maps an Open Food Facts product using serving nutrition', () async {
     final service = OpenFoodFactsProductLookupService(
       networkClient: _FakeNetworkClient((uri, headers) {
-        expect(uri.path, '/api/v2/product/1234567890123.json');
-        expect(headers?['User-Agent'], 'Calora/1.0');
+        expect(uri.path, '/api/v3/product/1234567890123');
+        expect(
+          headers?['User-Agent'],
+          'Calora/1.0 (https://github.com/ShuraShipai/calora)',
+        );
         return <String, dynamic>{
           'status': 1,
           'product': <String, dynamic>{
@@ -41,7 +44,7 @@ void main() {
   test('returns null when the barcode is not in Open Food Facts', () async {
     final service = OpenFoodFactsProductLookupService(
       networkClient: _FakeNetworkClient(
-        (_, _) => <String, dynamic>{'status': 0},
+        (_, _) => <String, dynamic>{'product': null},
       ),
     );
 
@@ -67,26 +70,23 @@ void main() {
     );
   });
 
-  test('uses the API host when the world host has a server error', () async {
+  test('preserves the network layer server message', () async {
     final service = OpenFoodFactsProductLookupService(
-      networkClient: _FakeNetworkClient((uri, _) {
-        if (uri.host == 'world.openfoodfacts.org') {
-          throw const NetworkException.server();
-        }
-        expect(uri.host, 'api.openfoodfacts.org');
-        return <String, dynamic>{
-          'status': 1,
-          'product': <String, dynamic>{
-            'product_name': 'Fallback product',
-            'nutriments': <String, dynamic>{},
-          },
-        };
-      }),
+      networkClient: _FakeNetworkClient(
+        (_, _) => throw const NetworkException.server(),
+      ),
     );
 
-    final product = await service.lookupBarcode('1234567890123');
-
-    expect(product?.name, 'Fallback product');
+    expect(
+      () => service.lookupBarcode('1234567890123'),
+      throwsA(
+        isA<BarcodeLookupException>().having(
+          (error) => error.message,
+          'message',
+          'The food database is unavailable right now. Please try again.',
+        ),
+      ),
+    );
   });
 
   test('uses 100 g nutrition when serving macros are incomplete', () {

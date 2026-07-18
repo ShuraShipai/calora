@@ -24,18 +24,6 @@ class AddFoodQuickActions extends StatelessWidget {
         CaloraGroupedList(
           children: <Widget>[
             CaloraListRow(
-              icon: Icons.photo_camera_outlined,
-              title: 'Scan food',
-              subtitle: 'Point your camera at a meal',
-              onTap: () => unawaited(
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.scanner,
-                  arguments: ScannerRequest.meal(mealType: _mealType),
-                ),
-              ),
-            ),
-            CaloraListRow(
               icon: Icons.qr_code_scanner,
               title: 'Scan barcode',
               subtitle: 'Packaged foods & products',

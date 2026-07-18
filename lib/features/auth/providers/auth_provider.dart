@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:calora/core/models/user_profile.dart';
-import 'package:calora/features/auth/services/auth_service.dart';
 import 'package:calora/features/auth/services/account_deletion_service.dart';
+import 'package:calora/features/auth/services/auth_service.dart';
 import 'package:calora/features/auth/services/user_profile_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -32,6 +32,7 @@ class AuthProvider extends ChangeNotifier {
   AuthStatus _status = AuthStatus.initializing;
   UserProfile? _profile;
   bool _isBusy = false;
+  bool _isDeletingAccount = false;
   String? _errorMessage;
   int _syncVersion = 0;
 
@@ -113,17 +114,29 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> deleteAccount({required String password}) async {
+    if (_isDeletingAccount) return false;
     final profile = _profile;
     if (profile == null) {
       _setError('Your session has expired. Please sign in again.');
       return false;
     }
-    return _runTask(() async {
-      await _authService.reauthenticateWithPassword(password);
-      await _accountDeletionService.deleteCurrentUsersData();
-      _profile = null;
-      _status = AuthStatus.unauthenticated;
-    });
+    _isDeletingAccount = true;
+    try {
+      return await _runTask(() async {
+        await _authService.reauthenticateWithPassword(password);
+        await _accountDeletionService.deleteCurrentUsersData();
+        try {
+          await _authService.signOut();
+        } catch (_) {
+          // The server has confirmed deletion; clear app state even if the
+          // invalidated Firebase session cannot be signed out remotely.
+        }
+        _profile = null;
+        _status = AuthStatus.unauthenticated;
+      });
+    } finally {
+      _isDeletingAccount = false;
+    }
   }
 
   void clearError() {
@@ -150,6 +163,9 @@ class AuthProvider extends ChangeNotifier {
     try {
       await action();
       return true;
+    } on AccountDeletionException catch (error) {
+      _errorMessage = error.message;
+      return false;
     } on FirebaseException catch (error) {
       _errorMessage = _messageFor(error.code);
       return false;
