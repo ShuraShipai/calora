@@ -123,40 +123,124 @@ have Cloud Functions enabled and deployed before this workflow can operate.
 ## Detailed Folder Structure
 
 ```text
-lib/
-  main.dart
-  firebase_options.dart
-
-  app/
-    bootstrap.dart                 # Firebase and root provider startup
-    calora_app.dart                # Root MaterialApp and theme wiring
-    providers/                     # Global provider composition and theme state
-    router/                        # Route constants and route builders
-    services/                      # App-level persistence helpers
-    widgets/                       # Main bottom navigation
-
-  core/
-    formatters/                    # Unit and measurement formatting
-    models/                        # Shared profile and goal models
-    network/                       # Dio client and connectivity boundary
-    theme/                         # Colours, typography, spacing, radii, shadows
-    widgets/                       # Feature-neutral UI primitives
-
-  features/
-    auth/                          # Authentication, profile persistence, deletion
-    diary/                         # Food diary and nutrition totals
-    food/                          # Add, copy, and custom-food flows
-    home/                          # Home dashboard and daily summaries
-    onboarding/                    # First-run health-profile setup
-    profile/                       # Goals, reminders, export, privacy, support
-    progress/                      # Water, weight, history, and insights
-    scanner/                       # Barcode scan and food-nutrition lookup
-
-functions/
-  src/index.ts                     # Callable account-deletion function
-
-test/                              # Unit and widget coverage
-docs/screenshots/                  # Optional public README screenshots
+calora/
+├── assets/
+│   └── fonts/                     # Bundled Inter and Fraunces font files
+├── docs/
+│   └── screenshots/               # README product-flow screenshots
+├── functions/
+│   ├── src/
+│   │   └── index.ts               # Callable account-deletion Cloud Function
+│   ├── package.json
+│   └── tsconfig.json
+├── lib/
+│   ├── main.dart                  # Delegates application startup to bootstrap()
+│   ├── firebase_options.dart      # Generated FlutterFire platform configuration
+│   │
+│   ├── app/                       # Application composition layer
+│   │   ├── bootstrap.dart          # Firebase initialisation and startup boundary
+│   │   ├── calora_app.dart         # Root MaterialApp, themes, and route wiring
+│   │   ├── providers/
+│   │   │   ├── app_providers.dart # Global MultiProvider composition
+│   │   │   └── theme_provider.dart
+│   │   ├── router/
+│   │   │   ├── app_router.dart    # Named-route construction
+│   │   │   └── app_routes.dart    # Central route constants
+│   │   ├── services/
+│   │   │   └── theme_preferences_service.dart
+│   │   └── widgets/
+│   │       └── main_bottom_navigation.dart
+│   │
+│   ├── core/                      # Feature-neutral, reusable foundation
+│   │   ├── formatters/
+│   │   │   └── measurement_formatter.dart
+│   │   ├── models/
+│   │   │   ├── daily_goal_status.dart
+│   │   │   └── user_profile.dart
+│   │   ├── network/
+│   │   │   ├── network_client.dart
+│   │   │   ├── network_connectivity_service.dart
+│   │   │   └── network_exception.dart
+│   │   ├── theme/
+│   │   │   ├── app_colors.dart
+│   │   │   ├── app_shadows.dart
+│   │   │   ├── app_theme.dart
+│   │   │   ├── app_tokens.dart
+│   │   │   ├── app_typography.dart
+│   │   │   └── theme_context.dart
+│   │   └── widgets/
+│   │       ├── calora_action_button.dart
+│   │       ├── calora_brand_mark.dart
+│   │       ├── calora_card.dart
+│   │       ├── calora_choice_chip.dart
+│   │       ├── calora_form.dart
+│   │       ├── calora_labeled_field.dart
+│   │       ├── calora_list.dart
+│   │       ├── calora_metrics.dart
+│   │       ├── calora_page.dart
+│   │       ├── calora_screen_scaffold.dart
+│   │       └── calora_sheet.dart
+│   │
+│   └── features/                  # Feature-first product modules
+│       ├── auth/
+│       │   ├── providers/auth_provider.dart
+│       │   ├── services/{auth_service, user_profile_service,
+│       │   │   │         account_deletion_service}.dart
+│       │   └── presentation/
+│       │       ├── auth_validators.dart
+│       │       ├── screens/{login, sign_up, forgot_password}_screen.dart
+│       │       └── widgets/       # Auth scaffold, forms, fields, and footer
+│       ├── diary/
+│       │   ├── models/{diary_entry, diary_food_source,
+│       │   │   │         diary_nutrition_totals, meal_type}.dart
+│       │   ├── providers/diary_provider.dart
+│       │   ├── services/diary_service.dart
+│       │   └── presentation/      # Diary screen, meal cards, entry details
+│       ├── food/
+│       │   ├── models/{food_entry, custom_food_edit_arguments}.dart
+│       │   └── presentation/      # Add food, copy meal, and custom food flows
+│       ├── home/
+│       │   ├── models/home_dashboard.dart
+│       │   ├── providers/home_provider.dart
+│       │   ├── services/home_dashboard_service.dart
+│       │   └── presentation/      # Header, calories, macros, meals, water, weight
+│       ├── onboarding/
+│       │   ├── providers/onboarding_provider.dart
+│       │   └── presentation/      # Splash, profile, activity, goals, and units steps
+│       ├── profile/
+│       │   ├── models/reminder.dart
+│       │   ├── providers/{data_export_provider, reminder_provider}.dart
+│       │   ├── services/{data_export_service, local_notification_service,
+│       │   │   │         reminder_service}.dart
+│       │   └── presentation/      # Profile, goals, reminders, units, privacy, support
+│       ├── progress/
+│       │   ├── models/{progress_date_range, progress_goal_metrics,
+│       │   │   │         water_entry, weight_entry}.dart
+│       │   ├── providers/progress_provider.dart
+│       │   ├── services/progress_service.dart
+│       │   └── presentation/      # Progress, water and weight screens and charts
+│       └── scanner/
+│           ├── models/{barcode_product, scan_item, scan_result_outcome,
+│           │   │         scanner_request, usda_food_nutrition}.dart
+│           ├── providers/{barcode_lookup_provider, scanner_provider,
+│           │   │         usda_nutrition_lookup_provider}.dart
+│           ├── services/{barcode_scanner_service, food_product_lookup_service,
+│           │   │         usda_food_nutrition_service}.dart
+│           └── presentation/      # Camera, barcode results, nutrition, meal picker
+│
+├── test/                          # Unit and widget tests mirroring app layers
+│   ├── support/fake_auth_dependencies.dart
+│   ├── account_deletion_service_test.dart
+│   ├── diary_provider_test.dart
+│   ├── onboarding_provider_test.dart
+│   ├── progress_provider_test.dart
+│   ├── reminder_provider_test.dart
+│   └── …                          # Focused model, service, provider, and widget tests
+├── README.md
+├── pubspec.yaml                   # Flutter SDK, package, font, and asset declarations
+├── analysis_options.yaml
+├── firebase.json                  # Firebase hosting/functions configuration
+└── firestore.rules                # Per-user Firestore access rules
 ```
 
 Within a feature, `presentation` owns screens and widgets, `providers` own
