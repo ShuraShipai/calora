@@ -19,8 +19,8 @@ Fraunces fonts.
 - Home dashboard with calorie, macro, water, weight, meal, and daily-goal
   progress.
 - Food diary for breakfast, lunch, dinner, and snacks.
-- Manual food logging, custom foods, copied meals, barcode scanning, Open Food
-  Facts lookup, and optional USDA FoodData Central nutrition lookup.
+- Manual food logging, custom foods, copied meals, barcode scanning, and Open
+  Food Facts lookup.
 - Water quick-add, custom entries, history, and configurable hydration goals.
 - Weight logging, historical entries, target-weight summaries, and trends.
 - Progress insights for calories, macros, water, and weight.
@@ -41,7 +41,7 @@ Fraunces fonts.
 | User data | Cloud Firestore |
 | Account deletion | Firebase Cloud Functions |
 | Notifications | `flutter_local_notifications`, `timezone`, `flutter_timezone` |
-| Food data | Open Food Facts and USDA FoodData Central |
+| Food data | Open Food Facts |
 | Scanning | `mobile_scanner` |
 | Networking | Dio and `connectivity_plus` |
 | Export sharing | `share_plus` |
@@ -71,8 +71,7 @@ Key providers:
 - `ReminderProvider`: reminder settings, permission requests, persistence, and
   device schedule synchronisation.
 - `DataExportProvider`: CSV export state and errors.
-- `BarcodeLookupProvider`, `ScannerProvider`, and
-  `UsdaNutritionLookupProvider`: scanner and nutrition-lookup workflows.
+- `BarcodeLookupProvider` and `ScannerProvider`: barcode-scanning workflows.
 
 ## Architecture
 
@@ -354,8 +353,7 @@ calora/
 │           │   ├── barcode_product.dart
 │           │   ├── scan_item.dart
 │           │   ├── scan_result_outcome.dart
-│           │   ├── scanner_request.dart
-│           │   └── usda_food_nutrition.dart
+│           │   └── scanner_request.dart
 │           ├── presentation/
 │           │   ├── screens/
 │           │   │   ├── scan_results_screen.dart
@@ -370,12 +368,10 @@ calora/
 │           │       └── scanner_preview.dart
 │           ├── providers/
 │           │   ├── barcode_lookup_provider.dart
-│           │   ├── scanner_provider.dart
-│           │   └── usda_nutrition_lookup_provider.dart
+│           │   └── scanner_provider.dart
 │           └── services/
 │               ├── barcode_scanner_service.dart
-│               ├── food_product_lookup_service.dart
-│               └── usda_food_nutrition_service.dart
+│               └── food_product_lookup_service.dart
 │
 ├── test/                          # Unit and widget tests mirroring app layers
 │   ├── support/fake_auth_dependencies.dart
@@ -402,8 +398,6 @@ calora/
 │   ├── progress_provider_test.dart
 │   ├── reminder_provider_test.dart
 │   ├── theme_provider_test.dart
-│   ├── usda_food_nutrition_service_test.dart
-│   ├── usda_nutrition_lookup_provider_test.dart
 │   └── user_profile_test.dart
 ├── README.md
 ├── pubspec.yaml                   # Flutter SDK, package, font, and asset declarations
@@ -442,7 +436,6 @@ The signed-in main navigation exposes Home, Diary, Scan, Progress, and Profile.
 - Android Studio / Android SDK for Android development
 - Xcode for iOS and macOS development
 - A Firebase project configured with the matching platform applications
-- A USDA FoodData Central API key only when USDA lookup is needed
 
 ### Install
 
@@ -455,16 +448,6 @@ flutter pub get
 ```sh
 flutter run
 ```
-
-### USDA Nutrition Lookup
-
-USDA lookup is optional. Supply the API key at build or run time:
-
-```sh
-flutter run --dart-define=USDA_API_KEY=your_api_key
-```
-
-The app remains usable without the key; USDA lookup is simply unavailable.
 
 ## Cloud Functions
 
