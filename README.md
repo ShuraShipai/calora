@@ -542,15 +542,3 @@ flutter test test/reminder_provider_test.dart
     <td><img src="docs/screenshots/19-log-out-confirmation.png" alt="Calora log out confirmation" width="210"></td>
   </tr>
 </table>
-
-## Contributing
-
-Keep changes feature-owned, use the existing Calora tokens and shared widgets,
-and add focused tests for new state or service behaviour. Do not construct SDK
-services in widgets; place external calls in feature services and coordinate
-them through providers.
-
-## License
-
-This repository is private (`publish_to: none`). Confirm the intended licence
-before redistributing any part of the project.
