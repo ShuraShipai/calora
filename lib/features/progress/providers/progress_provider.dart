@@ -15,9 +15,11 @@ class ProgressProvider extends ChangeNotifier {
   String? _uid;
   List<WaterEntry> _waterEntries = const <WaterEntry>[];
   List<WeightEntry> _weightEntries = const <WeightEntry>[];
+  String? _errorMessage;
 
   List<WaterEntry> get waterEntries => _waterEntries;
   List<WeightEntry> get weightEntries => _weightEntries;
+  String? get errorMessage => _errorMessage;
 
   List<WaterEntry> get waterEntriesToday =>
       _waterEntries.where((entry) => _isToday(entry.loggedAt)).toList();
@@ -53,17 +55,36 @@ class ProgressProvider extends ChangeNotifier {
     unawaited(_weightSubscription?.cancel());
     _waterEntries = const <WaterEntry>[];
     _weightEntries = const <WeightEntry>[];
+    _errorMessage = null;
     notifyListeners();
     final uid = _uid;
     if (uid == null) return;
-    _waterSubscription = _service.watchWaterEntries(uid).listen((entries) {
-      _waterEntries = entries;
-      notifyListeners();
-    });
-    _weightSubscription = _service.watchWeightEntries(uid).listen((entries) {
-      _weightEntries = entries;
-      notifyListeners();
-    });
+    _waterSubscription = _service
+        .watchWaterEntries(uid)
+        .listen(
+          (entries) {
+            _waterEntries = entries;
+            _errorMessage = null;
+            notifyListeners();
+          },
+          onError: (_, _) {
+            _errorMessage = 'Could not load progress entries.';
+            notifyListeners();
+          },
+        );
+    _weightSubscription = _service
+        .watchWeightEntries(uid)
+        .listen(
+          (entries) {
+            _weightEntries = entries;
+            _errorMessage = null;
+            notifyListeners();
+          },
+          onError: (_, _) {
+            _errorMessage = 'Could not load progress entries.';
+            notifyListeners();
+          },
+        );
   }
 
   Future<void> addWater(int amountMl) async {

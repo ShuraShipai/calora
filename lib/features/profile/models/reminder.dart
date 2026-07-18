@@ -132,7 +132,7 @@ class Reminder {
       'A nourishing lunch is a little kindness for your afternoon.',
     ReminderKind.dinner => 'Another dinner, another chance to be happy.',
     ReminderKind.water => 'A sip of water now keeps your day flowing.',
-    ReminderKind.weight => 'Log your weekly weight check-in.',
+    ReminderKind.weight => 'Log your weight check-in.',
     ReminderKind.diary => 'Remember to complete today’s diary.',
   };
 
@@ -150,11 +150,7 @@ class Reminder {
     final shownHour = selectedHour % 12 == 0 ? 12 : selectedHour % 12;
     final time =
         '$shownHour:${selectedMinute.toString().padLeft(2, '0')} $suffix';
-    return switch (kind) {
-      ReminderKind.weight => 'Sundays, $time',
-      ReminderKind.diary => time,
-      _ => time,
-    };
+    return time;
   }
 
   Map<String, Object?> toMap() => <String, Object?>{

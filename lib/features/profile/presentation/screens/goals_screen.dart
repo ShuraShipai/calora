@@ -1,6 +1,6 @@
-import 'package:calora/core/theme/app_tokens.dart';
-import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/formatters/measurement_formatter.dart';
+import 'package:calora/core/models/user_profile.dart';
+import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/profile/presentation/widgets/goal_edit_sheet.dart';

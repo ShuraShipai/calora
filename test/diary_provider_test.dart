@@ -149,6 +149,28 @@ void main() {
     expect(entry.toMap()['sugar'], isNull);
     expect(entry.toMap()['note'], isNull);
   });
+
+  test('exposes a load error from the diary stream', () async {
+    final service = _FakeDiaryService();
+    final provider = DiaryProvider(service);
+    addTearDown(() {
+      provider.dispose();
+      service.dispose();
+    });
+    provider.updateUser(
+      const UserProfile(
+        uid: 'user-1',
+        name: 'User',
+        isAnonymous: false,
+        onboardingComplete: true,
+      ),
+    );
+
+    service.emitError(StateError('Firestore unavailable'));
+    await _flush();
+
+    expect(provider.errorMessage, 'Could not load diary entries.');
+  });
 }
 
 DiaryEntry _entry({
@@ -183,6 +205,7 @@ class _FakeDiaryService implements DiaryService {
   String? deletedEntryId;
 
   void emit(List<DiaryEntry> value) => _entries.add(value);
+  void emitError(Object error) => _entries.addError(error);
 
   @override
   Future<void> addEntry(String uid, DiaryEntry entry) async {

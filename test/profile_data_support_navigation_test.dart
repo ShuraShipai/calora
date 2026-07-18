@@ -4,7 +4,13 @@ import 'package:calora/app/calora_app.dart';
 import 'package:calora/app/providers/theme_provider.dart';
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/app/services/theme_preferences_service.dart';
+import 'package:calora/core/models/daily_goal_status.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
+import 'package:calora/features/diary/models/diary_entry.dart';
+import 'package:calora/features/profile/providers/data_export_provider.dart';
+import 'package:calora/features/profile/services/data_export_service.dart';
+import 'package:calora/features/progress/models/water_entry.dart';
+import 'package:calora/features/progress/models/weight_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -48,6 +54,9 @@ Widget _testApp() {
         create: (_) =>
             AuthProvider(FakeAuthService(), FakeUserProfileService()),
       ),
+      ChangeNotifierProvider<DataExportProvider>(
+        create: (_) => DataExportProvider(_FakeDataExportService()),
+      ),
     ],
     child: const CaloraApp(),
   );
@@ -59,4 +68,14 @@ class _FakeThemePreferences implements ThemePreferencesService {
 
   @override
   Future<void> saveThemeMode(ThemeMode themeMode) async {}
+}
+
+class _FakeDataExportService implements DataExportService {
+  @override
+  Future<void> export({
+    required List<DiaryEntry> diaryEntries,
+    required List<WaterEntry> waterEntries,
+    required List<WeightEntry> weightEntries,
+    required List<DailyGoalStatus> dailyGoals,
+  }) async {}
 }

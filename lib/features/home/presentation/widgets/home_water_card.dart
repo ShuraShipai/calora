@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:calora/app/router/app_routes.dart';
+import 'package:calora/core/formatters/measurement_formatter.dart';
+import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_card.dart';
 import 'package:calora/features/home/models/home_dashboard.dart';
-import 'package:calora/core/formatters/measurement_formatter.dart';
-import 'package:calora/core/models/user_profile.dart';
 import 'package:flutter/material.dart';
 
 class HomeWaterCard extends StatelessWidget {

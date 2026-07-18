@@ -24,6 +24,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final dataExport = context.watch<DataExportProvider>();
     final profile = auth.profile;
     return Scaffold(
       key: const ValueKey<String>('profile'),
@@ -83,7 +84,9 @@ class ProfileScreen extends StatelessWidget {
                   CaloraListRow(
                     icon: Icons.file_download_outlined,
                     title: 'Export my data',
-                    onTap: () => _exportData(context),
+                    onTap: dataExport.isExporting
+                        ? null
+                        : () => _exportData(context),
                   ),
                   CaloraListRow(
                     icon: Icons.lock_outline,

@@ -72,6 +72,28 @@ void main() {
     expect(provider.weightChangeThisMonth, closeTo(-0.8, 0.001));
     expect(provider.weightTrend, <double>[68.6, 67.8]);
   });
+
+  test('exposes a load error from a progress stream', () async {
+    final service = _FakeProgressService();
+    final provider = ProgressProvider(service);
+    addTearDown(() async {
+      provider.dispose();
+      await service.dispose();
+    });
+    provider.updateUser(
+      const UserProfile(
+        uid: 'user-1',
+        name: 'Aanya',
+        isAnonymous: false,
+        onboardingComplete: true,
+      ),
+    );
+
+    service.waterController.addError(StateError('Firestore unavailable'));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(provider.errorMessage, 'Could not load progress entries.');
+  });
 }
 
 class _FakeProgressService implements ProgressService {

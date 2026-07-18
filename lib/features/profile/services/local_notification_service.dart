@@ -112,17 +112,15 @@ class FlutterLocalNotificationService implements LocalNotificationService {
     final scheduledHour = hour ?? reminder.hour!;
     final scheduledMinute = minute ?? reminder.minute!;
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = reminder.kind == ReminderKind.weight
-        ? _nextSunday(now, scheduledHour, scheduledMinute)
-        : tz.TZDateTime(
-            tz.local,
-            now.year,
-            now.month,
-            now.day,
-            scheduledHour,
-            scheduledMinute,
-          );
-    if (reminder.kind != ReminderKind.weight && !scheduled.isAfter(now)) {
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      scheduledHour,
+      scheduledMinute,
+    );
+    if (!scheduled.isAfter(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
     return _plugin.zonedSchedule(
@@ -146,27 +144,8 @@ class FlutterLocalNotificationService implements LocalNotificationService {
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents: reminder.kind == ReminderKind.weight
-          ? DateTimeComponents.dayOfWeekAndTime
-          : DateTimeComponents.time,
+      matchDateTimeComponents: DateTimeComponents.time,
     );
-  }
-
-  tz.TZDateTime _nextSunday(tz.TZDateTime now, int hour, int minute) {
-    var scheduled = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-    final daysUntilSunday = (DateTime.sunday - scheduled.weekday) % 7;
-    scheduled = scheduled.add(Duration(days: daysUntilSunday));
-    if (!scheduled.isAfter(now)) {
-      scheduled = scheduled.add(const Duration(days: 7));
-    }
-    return scheduled;
   }
 
   int _id(ReminderKind kind) => 700 + kind.index * 10;

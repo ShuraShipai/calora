@@ -110,6 +110,15 @@ void main() {
       );
     });
 
+    test('weight reminder shows only its selected daily time', () {
+      final weight = Reminder.defaults(
+        ReminderKind.weight,
+      ).copyWith(hour: 9, minute: 30);
+
+      expect(weight.scheduleLabel, '9:30 AM');
+      expect(weight.notificationBody, 'Log your weight check-in.');
+    });
+
     test('requires a complete water schedule before enabling it', () async {
       await provider.updateUser('user-1');
       final water = provider.reminders.firstWhere(
@@ -167,7 +176,7 @@ void main() {
       await loadingUpdate;
     });
 
-    test('keeps the saved setting when device scheduling fails', () async {
+    test('does not save a setting when device scheduling fails', () async {
       notifications.failSync = true;
       await provider.updateUser('user-1');
       notifications.failSync = true;
@@ -176,9 +185,9 @@ void main() {
       final saved = await provider.save(updated);
 
       expect(saved, isFalse);
-      expect(reminders.savedSettings?.reminders.first.enabled, isFalse);
+      expect(reminders.savedSettings, isNull);
       expect(provider.reminders.first.enabled, isFalse);
-      expect(provider.errorMessage, contains('could not be scheduled'));
+      expect(provider.errorMessage, contains('Could not schedule'));
     });
 
     test(

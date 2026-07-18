@@ -65,7 +65,6 @@ Key providers:
 - `AuthProvider`: authentication state, profile loading, onboarding, profile
   updates, sign-out, and account deletion.
 - `ThemeProvider`: persisted light, dark, or system theme selection.
-- `HomeProvider`: daily home-summary subscription for the active user.
 - `DiaryProvider`: diary entries, nutrition totals, and entry mutations.
 - `ProgressProvider`: water and weight history plus progress mutations.
 - `ReminderProvider`: reminder settings, permission requests, persistence, and
@@ -107,7 +106,6 @@ users/{uid}
   waterEntries/{entryId}
   weightEntries/{entryId}
   settings/reminders
-  dailySummaries/{yyyy-mm-dd}
 ```
 
 The user document itself stores profile and onboarding information. Firestore

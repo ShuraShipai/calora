@@ -8,8 +8,6 @@ import 'package:calora/features/auth/services/auth_service.dart';
 import 'package:calora/features/auth/services/user_profile_service.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/diary/services/diary_service.dart';
-import 'package:calora/features/home/providers/home_provider.dart';
-import 'package:calora/features/home/services/home_dashboard_service.dart';
 import 'package:calora/features/profile/providers/data_export_provider.dart';
 import 'package:calora/features/profile/providers/reminder_provider.dart';
 import 'package:calora/features/profile/services/data_export_service.dart';
@@ -41,9 +39,6 @@ List<SingleChildWidget> appProviders({
     create: (_) => FirebaseAccountDeletionService(),
   ),
   Provider<UserProfileService>(create: (_) => FirestoreUserProfileService()),
-  Provider<HomeDashboardService>(
-    create: (_) => FirestoreHomeDashboardService(),
-  ),
   Provider<DiaryService>(create: (_) => FirestoreDiaryService()),
   Provider<ProgressService>(create: (_) => FirestoreProgressService()),
   Provider<ReminderService>(create: (_) => FirestoreReminderService()),
@@ -71,10 +66,6 @@ List<SingleChildWidget> appProviders({
       context.read<UserProfileService>(),
       accountDeletionService: context.read<AccountDeletionService>(),
     ),
-  ),
-  ChangeNotifierProxyProvider<AuthProvider, HomeProvider>(
-    create: (context) => HomeProvider(context.read<HomeDashboardService>()),
-    update: (_, auth, home) => home!..updateUser(auth.profile),
   ),
   ChangeNotifierProxyProvider<AuthProvider, DiaryProvider>(
     create: (context) => DiaryProvider(context.read<DiaryService>()),

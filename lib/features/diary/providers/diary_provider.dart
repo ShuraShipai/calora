@@ -13,7 +13,9 @@ class DiaryProvider extends ChangeNotifier {
   StreamSubscription<List<DiaryEntry>>? _subscription;
   List<DiaryEntry> _entries = const <DiaryEntry>[];
   String? _uid;
+  String? _errorMessage;
   List<DiaryEntry> get entries => _entries;
+  String? get errorMessage => _errorMessage;
 
   /// Saved diary entries available to the Copy previous meal flow.
   ///
@@ -72,12 +74,22 @@ class DiaryProvider extends ChangeNotifier {
     _uid = profile?.uid;
     unawaited(_subscription?.cancel());
     _entries = const <DiaryEntry>[];
+    _errorMessage = null;
     notifyListeners();
     if (_uid == null) return;
-    _subscription = _service.watchEntries(_uid!).listen((entries) {
-      _entries = entries;
-      notifyListeners();
-    });
+    _subscription = _service
+        .watchEntries(_uid!)
+        .listen(
+          (entries) {
+            _entries = entries;
+            _errorMessage = null;
+            notifyListeners();
+          },
+          onError: (_, _) {
+            _errorMessage = 'Could not load diary entries.';
+            notifyListeners();
+          },
+        );
   }
 
   Future<void> add(DiaryEntry entry) async {

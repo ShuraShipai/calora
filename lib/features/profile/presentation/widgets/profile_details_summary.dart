@@ -1,6 +1,6 @@
-import 'package:calora/core/widgets/calora_list.dart';
 import 'package:calora/core/formatters/measurement_formatter.dart';
 import 'package:calora/core/models/user_profile.dart';
+import 'package:calora/core/widgets/calora_list.dart';
 import 'package:flutter/material.dart';
 
 class ProfileDetailsSummary extends StatelessWidget {

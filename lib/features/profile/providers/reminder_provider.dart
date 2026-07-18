@@ -105,19 +105,26 @@ class ReminderProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      await _service.save(uid, _settings);
       try {
         await _notifications.syncReminders(_settings.reminders);
       } catch (_) {
-        _errorMessage =
-            'Reminder saved, but notifications could not be scheduled on this device.';
+        _settings = previous;
+        _errorMessage = 'Could not schedule this reminder on this device.';
+        return false;
+      }
+      try {
+        await _service.save(uid, _settings);
+      } catch (_) {
+        _settings = previous;
+        try {
+          await _notifications.syncReminders(previous.reminders);
+        } catch (_) {
+          // The persistence error is the actionable result for this save.
+        }
+        _errorMessage = 'Could not save reminder.';
         return false;
       }
       return true;
-    } catch (_) {
-      _settings = previous;
-      _errorMessage = 'Could not save reminder.';
-      return false;
     } finally {
       _isSaving = false;
       notifyListeners();

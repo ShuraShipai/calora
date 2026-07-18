@@ -9,8 +9,6 @@ abstract interface class NetworkClient {
 }
 
 class DioNetworkClient implements NetworkClient {
-  static const _retryDelay = Duration(milliseconds: 500);
-
   factory DioNetworkClient({
     required NetworkConnectivityService connectivity,
     Dio? dio,
@@ -25,6 +23,8 @@ class DioNetworkClient implements NetworkClient {
               receiveTimeout: const Duration(seconds: 15),
             ),
           );
+
+  static const _retryDelay = Duration(milliseconds: 500);
 
   final NetworkConnectivityService _connectivity;
   final Dio _dio;

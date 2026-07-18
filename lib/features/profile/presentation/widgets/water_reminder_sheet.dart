@@ -4,6 +4,7 @@ import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_form.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:calora/features/profile/models/reminder.dart';
+import 'package:calora/features/profile/presentation/widgets/water_reminder_time_field.dart';
 import 'package:flutter/material.dart';
 
 enum _IntervalUnit { minutes, hours }
@@ -89,13 +90,13 @@ class _WaterReminderSheetState extends State<WaterReminderSheet> {
               .toList(growable: false),
         ),
         const SizedBox(height: AppSpacing.section),
-        _TimeField(
+        WaterReminderTimeField(
           label: 'Start time',
           value: _startTime,
           onTap: () => _pickTime(start: true),
         ),
         const SizedBox(height: AppSpacing.section),
-        _TimeField(
+        WaterReminderTimeField(
           label: 'End time',
           value: _endTime,
           onTap: () => _pickTime(start: false),
@@ -155,32 +156,4 @@ class _WaterReminderSheetState extends State<WaterReminderSheet> {
       ),
     );
   }
-}
-
-class _TimeField extends StatelessWidget {
-  const _TimeField({
-    required this.label,
-    required this.value,
-    required this.onTap,
-  });
-
-  final String label;
-  final TimeOfDay value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      Text(label, style: context.textTheme.labelMedium),
-      const SizedBox(height: AppSpacing.sm),
-      OutlinedButton(
-        onPressed: onTap,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(value.format(context)),
-        ),
-      ),
-    ],
-  );
 }

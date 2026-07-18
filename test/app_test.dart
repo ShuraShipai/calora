@@ -4,13 +4,26 @@ import 'package:calora/app/calora_app.dart';
 import 'package:calora/app/providers/theme_provider.dart';
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/app/services/theme_preferences_service.dart';
+import 'package:calora/core/models/daily_goal_status.dart';
 import 'package:calora/core/theme/app_colors.dart';
 import 'package:calora/core/theme/app_theme.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
-import 'package:calora/features/home/models/home_dashboard.dart';
-import 'package:calora/features/home/providers/home_provider.dart';
-import 'package:calora/features/home/services/home_dashboard_service.dart';
+import 'package:calora/features/diary/models/diary_entry.dart';
+import 'package:calora/features/diary/providers/diary_provider.dart';
+import 'package:calora/features/diary/services/diary_service.dart';
+import 'package:calora/features/profile/models/reminder.dart';
+import 'package:calora/features/profile/providers/data_export_provider.dart';
+import 'package:calora/features/profile/providers/reminder_provider.dart';
+import 'package:calora/features/profile/services/data_export_service.dart';
+import 'package:calora/features/profile/services/local_notification_service.dart';
+import 'package:calora/features/profile/services/reminder_service.dart';
+import 'package:calora/features/progress/models/water_entry.dart';
+import 'package:calora/features/progress/models/weight_entry.dart';
+import 'package:calora/features/progress/providers/progress_provider.dart';
+import 'package:calora/features/progress/services/progress_service.dart';
 import 'package:calora/features/scanner/models/scan_result_outcome.dart';
+import 'package:calora/features/scanner/providers/scanner_provider.dart';
+import 'package:calora/features/scanner/services/barcode_scanner_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -84,25 +97,26 @@ Widget _testApp({ThemeMode themeMode = ThemeMode.system}) {
         create: (_) =>
             AuthProvider(FakeAuthService(), FakeUserProfileService()),
       ),
-      Provider<HomeDashboardService>(
-        create: (_) => _FakeHomeDashboardService(),
+      ChangeNotifierProvider<DiaryProvider>(
+        create: (_) => DiaryProvider(_EmptyDiaryService()),
       ),
-      ChangeNotifierProxyProvider<AuthProvider, HomeProvider>(
-        create: (context) => HomeProvider(context.read<HomeDashboardService>()),
-        update: (_, auth, home) => home!..updateUser(auth.profile),
+      ChangeNotifierProvider<ProgressProvider>(
+        create: (_) => ProgressProvider(_EmptyProgressService()),
+      ),
+      ChangeNotifierProvider<ScannerProvider>(
+        create: (_) => ScannerProvider(BarcodeScannerService()),
+      ),
+      ChangeNotifierProvider<ReminderProvider>(
+        create: (_) => ReminderProvider(
+          _EmptyReminderService(),
+          _EmptyLocalNotificationService(),
+        ),
+      ),
+      ChangeNotifierProvider<DataExportProvider>(
+        create: (_) => DataExportProvider(_EmptyDataExportService()),
       ),
     ],
     child: const CaloraApp(),
-  );
-}
-
-class _FakeHomeDashboardService implements HomeDashboardService {
-  @override
-  Stream<HomeDashboard> watchToday({
-    required String uid,
-    required int calorieGoal,
-  }) => Stream<HomeDashboard>.value(
-    HomeDashboard.empty(calorieGoal: calorieGoal),
   );
 }
 
@@ -112,4 +126,62 @@ class _FakeThemePreferences implements ThemePreferencesService {
 
   @override
   Future<void> saveThemeMode(ThemeMode themeMode) async {}
+}
+
+class _EmptyDiaryService implements DiaryService {
+  @override
+  Future<void> addEntry(String uid, DiaryEntry entry) async {}
+
+  @override
+  Future<void> deleteEntry(String uid, String entryId) async {}
+
+  @override
+  Future<void> updateEntry(String uid, DiaryEntry entry) async {}
+
+  @override
+  Stream<List<DiaryEntry>> watchEntries(String uid) =>
+      Stream<List<DiaryEntry>>.value(const <DiaryEntry>[]);
+}
+
+class _EmptyProgressService implements ProgressService {
+  @override
+  Future<void> addWaterEntry(String uid, WaterEntry entry) async {}
+
+  @override
+  Future<void> addWeightEntry(String uid, WeightEntry entry) async {}
+
+  @override
+  Stream<List<WaterEntry>> watchWaterEntries(String uid) =>
+      Stream<List<WaterEntry>>.value(const <WaterEntry>[]);
+
+  @override
+  Stream<List<WeightEntry>> watchWeightEntries(String uid) =>
+      Stream<List<WeightEntry>>.value(const <WeightEntry>[]);
+}
+
+class _EmptyReminderService implements ReminderService {
+  @override
+  Future<ReminderSettings> load(String uid) async =>
+      ReminderSettings.defaults();
+
+  @override
+  Future<void> save(String uid, ReminderSettings settings) async {}
+}
+
+class _EmptyLocalNotificationService implements LocalNotificationService {
+  @override
+  Future<bool> requestPermission() async => true;
+
+  @override
+  Future<void> syncReminders(List<Reminder> reminders) async {}
+}
+
+class _EmptyDataExportService implements DataExportService {
+  @override
+  Future<void> export({
+    required List<DiaryEntry> diaryEntries,
+    required List<WaterEntry> waterEntries,
+    required List<WeightEntry> weightEntries,
+    required List<DailyGoalStatus> dailyGoals,
+  }) async {}
 }
