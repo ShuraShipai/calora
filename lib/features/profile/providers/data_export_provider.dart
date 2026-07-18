@@ -1,3 +1,4 @@
+import 'package:calora/core/models/daily_goal_status.dart';
 import 'package:calora/features/diary/models/diary_entry.dart';
 import 'package:calora/features/profile/services/data_export_service.dart';
 import 'package:calora/features/progress/models/water_entry.dart';
@@ -16,6 +17,7 @@ class DataExportProvider extends ChangeNotifier {
     required List<DiaryEntry> diaryEntries,
     required List<WaterEntry> waterEntries,
     required List<WeightEntry> weightEntries,
+    required List<DailyGoalStatus> dailyGoals,
   }) async {
     if (_isExporting) return false;
     _isExporting = true;
@@ -26,6 +28,7 @@ class DataExportProvider extends ChangeNotifier {
         diaryEntries: diaryEntries,
         waterEntries: waterEntries,
         weightEntries: weightEntries,
+        dailyGoals: dailyGoals,
       );
       return true;
     } catch (_) {

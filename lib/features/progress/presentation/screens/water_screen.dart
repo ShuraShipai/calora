@@ -1,5 +1,6 @@
 import 'package:calora/core/formatters/measurement_formatter.dart';
 import 'package:calora/core/models/user_profile.dart';
+import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/core/widgets/calora_screen_scaffold.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
@@ -18,9 +19,7 @@ class WaterScreen extends StatefulWidget {
 
 class _WaterScreenState extends State<WaterScreen> {
   void _showAddedMessage(int amount) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('+$amount ml logged')));
+    showCaloraMessage(context, '+$amount ml logged');
   }
 
   Future<void> _addWater(int amount) async {
@@ -29,9 +28,7 @@ class _WaterScreenState extends State<WaterScreen> {
       if (mounted) _showAddedMessage(amount);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save water entry.')),
-      );
+      showCaloraMessage(context, 'Could not save water entry.');
     }
   }
 

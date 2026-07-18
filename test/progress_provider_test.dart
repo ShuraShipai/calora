@@ -27,15 +27,17 @@ void main() {
       );
 
       await provider.addWater(500);
+      final loggedAt = DateTime.now();
       await provider.addWeight(
         weightKg: 68.4,
-        loggedAt: DateTime.now(),
+        loggedAt: loggedAt,
         note: 'Feeling steady',
       );
       await Future<void>.delayed(Duration.zero);
 
       expect(service.waterEntries.single.amountMl, 500);
       expect(service.weightEntries.single.weightKg, 68.4);
+      expect(service.weightEntries.single.loggedAt, loggedAt);
       expect(provider.waterTodayMl, 500);
       expect(provider.latestWeight?.note, 'Feeling steady');
     },

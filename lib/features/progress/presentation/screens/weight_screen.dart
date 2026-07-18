@@ -1,3 +1,5 @@
+import 'package:calora/core/models/user_profile.dart';
+import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/core/widgets/calora_screen_scaffold.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
@@ -29,25 +31,18 @@ class WeightScreen extends StatelessWidget {
         note: entry.note,
       );
       if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Weight logged')));
+      showCaloraMessage(context, 'Weight logged');
     } catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save weight entry.')),
-      );
+      showCaloraMessage(context, 'Could not save weight entry.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final progress = context.watch<ProgressProvider>();
-    final target = context
-        .watch<AuthProvider>()
-        .profile
-        ?.onboarding
-        ?.targetWeightKg;
+    final details = context.watch<AuthProvider>().profile?.onboarding;
+    final target = details?.targetWeightKg;
     return CaloraScreenScaffold(
       screenId: 'weight',
       title: 'Weight',
@@ -56,9 +51,29 @@ class WeightScreen extends StatelessWidget {
         onLogWeight: () => _showLogWeightSheet(context),
         currentWeightKg: progress.latestWeight?.weightKg,
         targetWeightKg: target,
+        hasReachedWeightGoal: _hasReachedWeightGoal(
+          currentWeightKg: progress.latestWeight?.weightKg,
+          targetWeightKg: target,
+          goal: details?.goal,
+        ),
         monthlyChangeKg: progress.weightChangeThisMonth,
         entries: progress.weightEntries,
       ),
     );
+  }
+
+  bool _hasReachedWeightGoal({
+    required double? currentWeightKg,
+    required double? targetWeightKg,
+    required WellnessGoal? goal,
+  }) {
+    if (currentWeightKg == null || targetWeightKg == null) return false;
+    return switch (goal) {
+      WellnessGoal.loseWeight => currentWeightKg <= targetWeightKg,
+      WellnessGoal.maintainWeight =>
+        (currentWeightKg - targetWeightKg).abs() <= 0.1,
+      WellnessGoal.gainWeight => currentWeightKg >= targetWeightKg,
+      _ => false,
+    };
   }
 }

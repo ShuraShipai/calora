@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/theme/app_tokens.dart';
+import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_activity_step.dart';
 import 'package:calora/features/onboarding/presentation/widgets/onboarding_details_step.dart';
@@ -45,9 +46,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         ),
       );
     } else if (auth.errorMessage != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.errorMessage!)));
+      showCaloraMessage(context, auth.errorMessage!);
     }
   }
 
@@ -62,9 +61,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         (onboarding.step == 2 && onboarding.goal == null) ||
         (onboarding.isLastStep && onboarding.unitSystem == null);
     if (selectionMissing) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Choose an option to continue.')),
-      );
+      showCaloraMessage(context, 'Choose an option to continue.');
       return;
     }
     if (onboarding.isLastStep) {

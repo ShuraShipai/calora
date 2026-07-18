@@ -9,6 +9,7 @@ class ProgressInsightsCard extends StatelessWidget {
     super.key,
     required this.calorieProgress,
     required this.calorieGoal,
+    required this.selectedDay,
     required this.averageCalories,
     required this.proteinAverage,
     required this.carbohydrateAverage,
@@ -20,6 +21,7 @@ class ProgressInsightsCard extends StatelessWidget {
 
   final double calorieProgress;
   final int calorieGoal;
+  final DateTime selectedDay;
   final int averageCalories;
   final int proteinAverage;
   final int carbohydrateAverage;
@@ -42,6 +44,14 @@ class ProgressInsightsCard extends StatelessWidget {
                   style: _sectionLabel(context),
                 ),
               ),
+              Text(
+                MaterialLocalizations.of(context).formatMediumDate(selectedDay),
+                key: const ValueKey<String>('daily-calorie-date'),
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colors.inkSoft,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
               Semantics(
                 label: 'Swipe left or right to change day',
                 child: ExcludeSemantics(

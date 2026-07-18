@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:calora/core/models/daily_goal_status.dart';
 import 'package:calora/features/diary/models/diary_entry.dart';
 import 'package:calora/features/progress/models/water_entry.dart';
 import 'package:calora/features/progress/models/weight_entry.dart';
@@ -10,6 +11,7 @@ abstract interface class DataExportService {
     required List<DiaryEntry> diaryEntries,
     required List<WaterEntry> waterEntries,
     required List<WeightEntry> weightEntries,
+    required List<DailyGoalStatus> dailyGoals,
   });
 }
 
@@ -19,8 +21,14 @@ class ShareDataExportService implements DataExportService {
     required List<DiaryEntry> diaryEntries,
     required List<WaterEntry> waterEntries,
     required List<WeightEntry> weightEntries,
+    required List<DailyGoalStatus> dailyGoals,
   }) {
-    final csv = _csv(diaryEntries, waterEntries, weightEntries);
+    final csv = csvFor(
+      diaryEntries: diaryEntries,
+      waterEntries: waterEntries,
+      weightEntries: weightEntries,
+      dailyGoals: dailyGoals,
+    );
     return SharePlus.instance.share(
       ShareParams(
         title: 'Calora data export',
@@ -32,12 +40,13 @@ class ShareDataExportService implements DataExportService {
     );
   }
 
-  String _csv(
-    List<DiaryEntry> diaryEntries,
-    List<WaterEntry> waterEntries,
-    List<WeightEntry> weightEntries,
-  ) => <String>[
-    'type,date,meal,name,serving,calories,protein_g,carbs_g,fat_g,amount_ml,weight_kg,note',
+  String csvFor({
+    required List<DiaryEntry> diaryEntries,
+    required List<WaterEntry> waterEntries,
+    required List<WeightEntry> weightEntries,
+    required List<DailyGoalStatus> dailyGoals,
+  }) => <String>[
+    'type,date,meal,name,serving,calories,protein_g,carbs_g,fat_g,amount_ml,weight_kg,note,goal_name,goal_complete',
     ...diaryEntries.map(
       (entry) => _row(<Object?>[
         'diary',
@@ -52,6 +61,8 @@ class ShareDataExportService implements DataExportService {
         '',
         '',
         entry.note,
+        '',
+        '',
       ]),
     ),
     ...waterEntries.map(
@@ -66,6 +77,8 @@ class ShareDataExportService implements DataExportService {
         '',
         '',
         entry.amountMl,
+        '',
+        '',
         '',
         '',
       ]),
@@ -84,6 +97,26 @@ class ShareDataExportService implements DataExportService {
         '',
         entry.weightKg,
         entry.note,
+        '',
+        '',
+      ]),
+    ),
+    ...dailyGoals.map(
+      (goal) => _row(<Object?>[
+        'goal',
+        DateTime.now().toIso8601String(),
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        goal.name,
+        goal.isCompleted ? '✓' : '',
       ]),
     ),
   ].join('\n');

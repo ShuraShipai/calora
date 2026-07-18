@@ -1,4 +1,5 @@
 import 'package:calora/app/widgets/main_bottom_navigation.dart';
+import 'package:calora/core/models/daily_goal_status.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
@@ -31,6 +32,21 @@ class HomeScreen extends StatelessWidget {
       carbohydrateGoal: profile?.onboarding?.carbohydrateGoalGrams ?? 0,
       fatGoal: profile?.onboarding?.fatGoalGrams ?? 0,
     );
+    final dailyGoals = dailyGoalStatuses(
+      caloriesEaten: dashboard.caloriesEaten,
+      calorieGoal: dashboard.calorieGoal,
+      proteinGrams: dashboard.proteinGrams,
+      proteinGoalGrams: dashboard.proteinGoalGrams,
+      carbohydratesGrams: dashboard.carbohydratesGrams,
+      carbohydratesGoalGrams: dashboard.carbohydratesGoalGrams,
+      fatGrams: dashboard.fatGrams,
+      fatGoalGrams: dashboard.fatGoalGrams,
+      waterMillilitres: progress.waterTodayMl,
+      waterGoalLiters: profile?.onboarding?.waterGoalLiters,
+      currentWeightKg: progress.latestWeight?.weightKg,
+      targetWeightKg: profile?.onboarding?.targetWeightKg,
+      wellnessGoal: profile?.onboarding?.goal,
+    );
     return CaloraPage(
       screenId: 'home',
       bottomNavigationBar: const MainBottomNavigation(
@@ -43,7 +59,12 @@ class HomeScreen extends StatelessWidget {
             bottom: AppSpacing.xxl,
             child: HomeHeader(name: profile?.name ?? ''),
           ),
-          CaloraSection(child: HomeCalorieSummary(dashboard: dashboard)),
+          CaloraSection(
+            child: HomeCalorieSummary(
+              dashboard: dashboard,
+              dailyGoals: dailyGoals,
+            ),
+          ),
           CaloraSection(child: HomeMacros(dashboard: dashboard)),
           CaloraSection(
             child: HomeWaterCard(

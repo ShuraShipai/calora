@@ -40,4 +40,22 @@ void main() {
     expect(provider.details.unitSystem, UnitSystem.imperial);
     expect(provider.details.dailyCalorieTarget, isNull);
   });
+
+  test('adds optional remaining goals in the selected unit system', () {
+    final provider = OnboardingProvider()
+      ..selectUnitSystem(UnitSystem.imperial)
+      ..updateDailyCalorieTarget('2000')
+      ..updateProteinGoal('120')
+      ..updateCarbohydrateGoal('250')
+      ..updateFatGoal('70')
+      ..updateWaterGoal('64')
+      ..updateWeeklyWeightGoal('1');
+
+    expect(provider.details.dailyCalorieTarget, 2000);
+    expect(provider.details.proteinGoalGrams, 120);
+    expect(provider.details.carbohydrateGoalGrams, 250);
+    expect(provider.details.fatGoalGrams, 70);
+    expect(provider.details.waterGoalLiters, closeTo(1.89, 0.01));
+    expect(provider.details.weeklyWeightGoalKg, closeTo(0.45, 0.01));
+  });
 }

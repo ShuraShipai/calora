@@ -2,6 +2,7 @@ import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_list.dart';
+import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_page_header.dart';
@@ -97,8 +98,6 @@ class _UnitsScreenState extends State<UnitsScreen> {
       ),
     );
     if (!mounted || !saved) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Units saved')));
+    showCaloraMessage(context, 'Units saved');
   }
 }

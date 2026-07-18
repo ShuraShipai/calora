@@ -163,5 +163,7 @@ class CaloraSectionTitle extends StatelessWidget {
 void showCaloraMessage(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+    ..showSnackBar(
+      SnackBar(content: Text(message), duration: AppDurations.toast),
+    );
 }

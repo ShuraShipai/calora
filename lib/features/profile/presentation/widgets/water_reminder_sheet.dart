@@ -29,10 +29,7 @@ class _WaterReminderSheetState extends State<WaterReminderSheet> {
     super.initState();
     final interval = widget.reminder.waterIntervalMinutes ?? 120;
     _unit = interval % 60 == 0 ? _IntervalUnit.hours : _IntervalUnit.minutes;
-    _intervalController = TextEditingController(
-      text: (_unit == _IntervalUnit.hours ? interval ~/ 60 : interval)
-          .toString(),
-    );
+    _intervalController = TextEditingController();
     _startTime = TimeOfDay(
       hour: widget.reminder.hour ?? 8,
       minute: widget.reminder.minute ?? 0,
@@ -60,7 +57,9 @@ class _WaterReminderSheetState extends State<WaterReminderSheet> {
         CaloraLabeledField(
           label: 'Repeat every',
           controller: _intervalController,
+          hint: 'e.g. 2',
           keyboardType: TextInputType.number,
+          selectAllOnTap: true,
           onChanged: (_) => setState(() => _error = null),
         ),
         const SizedBox(height: AppSpacing.md),

@@ -1,5 +1,6 @@
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/core/theme/app_tokens.dart';
+import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/auth/presentation/widgets/auth_scaffold.dart';
 import 'package:calora/features/auth/presentation/widgets/forgot_password_form.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
@@ -28,9 +29,7 @@ class ForgotPasswordScreen extends StatelessWidget {
               .read<AuthProvider>()
               .sendPasswordResetEmail(email);
           if (!context.mounted || !success) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password reset email sent.')),
-          );
+          showCaloraMessage(context, 'Password reset email sent.');
         },
         onBackToLogin: () =>
             Navigator.pushReplacementNamed(context, AppRoutes.login),

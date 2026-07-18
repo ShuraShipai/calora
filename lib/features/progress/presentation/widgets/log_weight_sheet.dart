@@ -1,9 +1,9 @@
+import 'package:calora/core/formatters/measurement_formatter.dart';
+import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_action_button.dart';
 import 'package:calora/core/widgets/calora_form.dart';
 import 'package:calora/core/widgets/calora_sheet.dart';
-import 'package:calora/core/models/user_profile.dart';
-import 'package:calora/core/formatters/measurement_formatter.dart';
 import 'package:flutter/material.dart';
 
 class LogWeightSheet extends StatefulWidget {
@@ -16,37 +16,14 @@ class LogWeightSheet extends StatefulWidget {
 
 class _LogWeightSheetState extends State<LogWeightSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _dateController = TextEditingController();
   final _weightController = TextEditingController();
   final _noteController = TextEditingController();
-  DateTime _loggedAt = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    _dateController.text = _dateLabel(_loggedAt);
-  }
 
   @override
   void dispose() {
-    _dateController.dispose();
     _weightController.dispose();
     _noteController.dispose();
     super.dispose();
-  }
-
-  Future<void> _selectDate() async {
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: _loggedAt,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-    );
-    if (selected == null) return;
-    setState(() {
-      _loggedAt = selected;
-      _dateController.text = _dateLabel(selected);
-    });
   }
 
   @override
@@ -58,19 +35,6 @@ class _LogWeightSheetState extends State<LogWeightSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            CaloraLabeledField(
-              label: 'Date',
-              controller: _dateController,
-              keyboardType: TextInputType.datetime,
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: _selectDate,
-                child: const Text('Choose date'),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
             CaloraLabeledField(
               label: widget.unitSystem == UnitSystem.imperial
                   ? 'Weight (lb)'
@@ -105,7 +69,7 @@ class _LogWeightSheetState extends State<LogWeightSheet> {
                       double.parse(_weightController.text.trim()),
                       widget.unitSystem,
                     ),
-                    loggedAt: _loggedAt,
+                    loggedAt: DateTime.now(),
                     note: _noteController.text.trim(),
                   ),
                 );
@@ -115,24 +79,6 @@ class _LogWeightSheetState extends State<LogWeightSheet> {
         ),
       ),
     );
-  }
-
-  String _dateLabel(DateTime value) {
-    const months = <String>[
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${value.day} ${months[value.month - 1]} ${value.year}';
   }
 }
 

@@ -8,31 +8,60 @@ class WeightSummaryCards extends StatelessWidget {
     super.key,
     required this.currentWeightKg,
     required this.targetWeightKg,
+    required this.hasReachedWeightGoal,
     required this.monthlyChangeKg,
   });
 
   final double? currentWeightKg;
   final double? targetWeightKg;
+  final bool hasReachedWeightGoal;
   final double? monthlyChangeKg;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: <Widget>[
-        Expanded(
-          child: _card(context, _weightLabel(currentWeightKg), 'Current'),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: _card(context, _weightLabel(currentWeightKg), 'Current'),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(
+              child: _card(context, _weightLabel(targetWeightKg), 'Target'),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(
+              child: _card(
+                context,
+                _changeLabel(monthlyChangeKg),
+                'This month',
+                context.colors.moss,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: AppSpacing.lg),
-        Expanded(child: _card(context, _weightLabel(targetWeightKg), 'Target')),
-        const SizedBox(width: AppSpacing.lg),
-        Expanded(
-          child: _card(
-            context,
-            _changeLabel(monthlyChangeKg),
-            'This month',
-            context.colors.moss,
+        if (hasReachedWeightGoal) ...<Widget>[
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                Icons.check_circle_outline,
+                size: AppSizes.iconSmall,
+                color: context.colors.moss,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                'Weight goal reached',
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colors.moss,
+                  fontWeight: AppFontWeights.semiBold,
+                ),
+              ),
+            ],
           ),
-        ),
+        ],
       ],
     );
   }

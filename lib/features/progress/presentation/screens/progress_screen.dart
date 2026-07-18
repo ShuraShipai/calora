@@ -52,6 +52,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         onNextDay: _selectedDay.isBefore(_startOfToday) ? _showNextDay : null,
         calorieProgress: goals.calorieChartValue(totals.calories),
         calorieGoal: calorieGoal,
+        selectedDay: _selectedDay,
         waterValues: normalizedWater,
         weightValues: weights,
         waterLabels: trendRange.weekdayLabels,

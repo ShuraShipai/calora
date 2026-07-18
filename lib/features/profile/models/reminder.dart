@@ -232,7 +232,7 @@ class ReminderSettings {
   final bool needsLegacyReset;
 
   Map<String, Object?> toMap() => <String, Object?>{
-    'schemaVersion': 2,
+    'schemaVersion': 3,
     for (final reminder in reminders) reminder.kind.name: reminder.toMap(),
     'updatedAt': FieldValue.serverTimestamp(),
   };

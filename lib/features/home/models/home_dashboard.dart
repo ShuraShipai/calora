@@ -92,6 +92,18 @@ class HomeDashboard {
   double get calorieProgress =>
       calorieGoal == 0 ? 0 : (caloriesEaten / calorieGoal).clamp(0, 1);
 
+  bool get hasReachedCalorieGoal =>
+      calorieGoal > 0 && caloriesEaten >= calorieGoal;
+
+  bool get hasReachedProteinGoal =>
+      proteinGoalGrams > 0 && proteinGrams >= proteinGoalGrams;
+
+  bool get hasReachedCarbohydrateGoal =>
+      carbohydratesGoalGrams > 0 &&
+      carbohydratesGrams >= carbohydratesGoalGrams;
+
+  bool get hasReachedFatGoal => fatGoalGrams > 0 && fatGrams >= fatGoalGrams;
+
   HomeMealSummary mealFor(HomeMealType type) => meals[type]!;
 
   int meterSegmentsFor(int value, int goal) {

@@ -20,6 +20,7 @@ void main() {
             onNextDay: () => nextDayRequests++,
             calorieProgress: 0.6,
             calorieGoal: 2000,
+            selectedDay: DateTime(2026, 7, 18),
             waterValues: const <double>[0.2, 0.4, 0.6],
             weightValues: const <double>[0.4, 0.6],
             waterLabels: const <String>['Mon', 'Tue', 'Wed'],
@@ -38,6 +39,10 @@ void main() {
 
     expect(find.text('Daily'), findsNothing);
     expect(find.text('Week'), findsNothing);
+    final dateLabel = tester.widget<Text>(
+      find.byKey(const ValueKey<String>('daily-calorie-date')),
+    );
+    expect(dateLabel.data, isNotEmpty);
     expect(find.text('Last 7 days · 68.4 kg'), findsOneWidget);
     expect(find.byType(CaloraProgressRing), findsOneWidget);
 

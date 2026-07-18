@@ -12,6 +12,7 @@ class WeightPageBody extends StatelessWidget {
     required this.onLogWeight,
     required this.currentWeightKg,
     required this.targetWeightKg,
+    required this.hasReachedWeightGoal,
     required this.monthlyChangeKg,
     required this.entries,
   });
@@ -19,6 +20,7 @@ class WeightPageBody extends StatelessWidget {
   final VoidCallback onLogWeight;
   final double? currentWeightKg;
   final double? targetWeightKg;
+  final bool hasReachedWeightGoal;
   final double? monthlyChangeKg;
   final List<WeightEntry> entries;
 
@@ -37,6 +39,7 @@ class WeightPageBody extends StatelessWidget {
           child: WeightSummaryCards(
             currentWeightKg: currentWeightKg,
             targetWeightKg: targetWeightKg,
+            hasReachedWeightGoal: hasReachedWeightGoal,
             monthlyChangeKg: monthlyChangeKg,
           ),
         ),

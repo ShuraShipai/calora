@@ -16,11 +16,11 @@ class OnboardingCalorieTarget extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Text(
-            target?.toString() ?? '—',
+            target.isEmpty ? '—' : target,
             style: context.textTheme.displayLarge,
           ),
           Text(
-            target == null ? 'Set after your details' : 'calories / day',
+            target.isEmpty ? 'Set after your details' : 'calories / day',
             style: context.textTheme.labelMedium?.copyWith(
               color: context.colors.inkSoft,
             ),

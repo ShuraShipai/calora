@@ -1,5 +1,6 @@
 import 'package:calora/app/router/app_routes.dart';
 import 'package:calora/app/widgets/main_bottom_navigation.dart';
+import 'package:calora/core/models/daily_goal_status.dart';
 import 'package:calora/core/models/user_profile.dart';
 import 'package:calora/core/theme/app_tokens.dart';
 import 'package:calora/core/widgets/calora_list.dart';
@@ -169,10 +170,27 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _exportData(BuildContext context) async {
     final diary = context.read<DiaryProvider>();
     final progress = context.read<ProgressProvider>();
+    final onboarding = context.read<AuthProvider>().profile?.onboarding;
+    final nutrition = diary.nutritionToday;
     final exported = await context.read<DataExportProvider>().export(
       diaryEntries: diary.entries,
       waterEntries: progress.waterEntries,
       weightEntries: progress.weightEntries,
+      dailyGoals: dailyGoalStatuses(
+        caloriesEaten: nutrition.calories,
+        calorieGoal: onboarding?.dailyCalorieTarget ?? 0,
+        proteinGrams: nutrition.protein,
+        proteinGoalGrams: onboarding?.proteinGoalGrams ?? 0,
+        carbohydratesGrams: nutrition.carbs,
+        carbohydratesGoalGrams: onboarding?.carbohydrateGoalGrams ?? 0,
+        fatGrams: nutrition.fat,
+        fatGoalGrams: onboarding?.fatGoalGrams ?? 0,
+        waterMillilitres: progress.waterTodayMl,
+        waterGoalLiters: onboarding?.waterGoalLiters,
+        currentWeightKg: progress.latestWeight?.weightKg,
+        targetWeightKg: onboarding?.targetWeightKg,
+        wellnessGoal: onboarding?.goal,
+      ),
     );
     if (!context.mounted || exported) return;
     ScaffoldMessenger.of(context).showSnackBar(

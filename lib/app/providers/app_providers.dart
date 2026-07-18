@@ -3,20 +3,20 @@ import 'package:calora/app/services/theme_preferences_service.dart';
 import 'package:calora/core/network/network_client.dart';
 import 'package:calora/core/network/network_connectivity_service.dart';
 import 'package:calora/features/auth/providers/auth_provider.dart';
-import 'package:calora/features/auth/services/auth_service.dart';
 import 'package:calora/features/auth/services/account_deletion_service.dart';
+import 'package:calora/features/auth/services/auth_service.dart';
 import 'package:calora/features/auth/services/user_profile_service.dart';
 import 'package:calora/features/diary/providers/diary_provider.dart';
 import 'package:calora/features/diary/services/diary_service.dart';
 import 'package:calora/features/home/providers/home_provider.dart';
 import 'package:calora/features/home/services/home_dashboard_service.dart';
-import 'package:calora/features/progress/providers/progress_provider.dart';
-import 'package:calora/features/progress/services/progress_service.dart';
-import 'package:calora/features/profile/providers/reminder_provider.dart';
 import 'package:calora/features/profile/providers/data_export_provider.dart';
+import 'package:calora/features/profile/providers/reminder_provider.dart';
 import 'package:calora/features/profile/services/data_export_service.dart';
 import 'package:calora/features/profile/services/local_notification_service.dart';
 import 'package:calora/features/profile/services/reminder_service.dart';
+import 'package:calora/features/progress/providers/progress_provider.dart';
+import 'package:calora/features/progress/services/progress_service.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:calora/features/scanner/providers/scanner_provider.dart';
 import 'package:calora/features/scanner/providers/usda_nutrition_lookup_provider.dart';
@@ -94,7 +94,16 @@ List<SingleChildWidget> appProviders({
       context.read<ReminderService>(),
       context.read<LocalNotificationService>(),
     ),
-    update: (_, auth, reminders) => reminders!..updateUser(auth.profile?.uid),
+    update: (_, auth, reminders) {
+      final provider = reminders!;
+      // A restored Firebase session is briefly unresolved at startup. Keep
+      // existing device schedules until that state resolves; only a resolved
+      // signed-out state should clear them.
+      if (auth.status != AuthStatus.initializing) {
+        provider.updateUser(auth.profile?.uid);
+      }
+      return provider;
+    },
   ),
   ChangeNotifierProvider<DataExportProvider>(
     create: (context) => DataExportProvider(context.read<DataExportService>()),

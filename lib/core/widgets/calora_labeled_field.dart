@@ -8,6 +8,7 @@ class CaloraLabeledField extends StatelessWidget {
     this.hint,
     this.controller,
     this.keyboardType,
+    this.selectAllOnTap = false,
     this.onChanged,
     this.validator,
   });
@@ -16,6 +17,7 @@ class CaloraLabeledField extends StatelessWidget {
   final String? hint;
   final TextEditingController? controller;
   final TextInputType? keyboardType;
+  final bool selectAllOnTap;
   final ValueChanged<String>? onChanged;
   final String? Function(String?)? validator;
   @override
@@ -28,6 +30,12 @@ class CaloraLabeledField extends StatelessWidget {
         initialValue: controller == null ? initialValue : null,
         controller: controller,
         keyboardType: keyboardType,
+        onTap: selectAllOnTap && controller != null
+            ? () => controller!.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: controller!.text.length,
+              )
+            : null,
         onChanged: onChanged,
         validator: validator,
         decoration: InputDecoration(hintText: hint),

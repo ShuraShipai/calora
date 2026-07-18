@@ -18,6 +18,35 @@ void main() {
       provider = ReminderProvider(reminders, notifications);
     });
 
+    test('serializes water schedules with the current schema version', () {
+      final settings = ReminderSettings(<Reminder>[
+        Reminder.defaults(ReminderKind.breakfast),
+        Reminder.defaults(ReminderKind.lunch),
+        Reminder.defaults(ReminderKind.dinner),
+        const Reminder(
+          kind: ReminderKind.water,
+          enabled: true,
+          hour: 8,
+          minute: 0,
+          waterIntervalMinutes: 45,
+          waterEndHour: 20,
+          waterEndMinute: 0,
+        ),
+        Reminder.defaults(ReminderKind.weight),
+        Reminder.defaults(ReminderKind.diary),
+      ]);
+
+      final data = settings.toMap();
+      final restored = ReminderSettings.fromMap(<String, dynamic>{...data});
+      final water = restored.reminders.firstWhere(
+        (reminder) => reminder.kind == ReminderKind.water,
+      );
+
+      expect(data['schemaVersion'], 3);
+      expect(water.hasWaterSchedule, isTrue);
+      expect(water.waterIntervalMinutes, 45);
+    });
+
     test('schedules loaded reminders for the active user', () async {
       final settings = ReminderSettings.defaults();
       reminders.settings = settings;

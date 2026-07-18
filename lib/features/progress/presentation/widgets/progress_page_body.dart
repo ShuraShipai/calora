@@ -13,6 +13,7 @@ class ProgressPageBody extends StatelessWidget {
     required this.onNextDay,
     required this.calorieProgress,
     required this.calorieGoal,
+    required this.selectedDay,
     required this.weightValues,
     required this.waterValues,
     required this.waterLabels,
@@ -30,6 +31,7 @@ class ProgressPageBody extends StatelessWidget {
   final VoidCallback? onNextDay;
   final double calorieProgress;
   final int calorieGoal;
+  final DateTime selectedDay;
   final List<double> weightValues;
   final List<double> waterValues;
   final List<String> waterLabels;
@@ -61,6 +63,7 @@ class ProgressPageBody extends StatelessWidget {
             child: ProgressInsightsCard(
               calorieProgress: calorieProgress,
               calorieGoal: calorieGoal,
+              selectedDay: selectedDay,
               averageCalories: averageCalories,
               proteinAverage: proteinAverage,
               carbohydrateAverage: carbohydrateAverage,

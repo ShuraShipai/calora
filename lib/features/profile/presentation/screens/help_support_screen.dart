@@ -1,4 +1,5 @@
 import 'package:calora/core/theme/app_tokens.dart';
+import 'package:calora/core/widgets/calora_page.dart';
 import 'package:calora/features/profile/presentation/widgets/help_support_content.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_page_header.dart';
 import 'package:calora/features/profile/presentation/widgets/profile_section.dart';
@@ -29,8 +30,6 @@ class HelpSupportScreen extends StatelessWidget {
   }
 
   void _showContactSupportMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Contact support is coming soon')),
-    );
+    showCaloraMessage(context, 'Contact support is coming soon');
   }
 }
