@@ -1,4 +1,5 @@
 import 'package:calora/core/theme/app_tokens.dart';
+import 'package:calora/core/theme/app_typography.dart';
 import 'package:calora/core/theme/theme_context.dart';
 import 'package:calora/core/widgets/calora_card.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +79,10 @@ class WeightSummaryCards extends StatelessWidget {
           Text(
             value,
             maxLines: 1,
-            style: context.textTheme.titleMedium?.copyWith(color: color),
+            style: context.textTheme.titleMedium?.copyWith(
+              color: color,
+              fontFamily: AppTypography.displayFamily,
+            ),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
