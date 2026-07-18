@@ -19,10 +19,8 @@ import 'package:calora/features/progress/providers/progress_provider.dart';
 import 'package:calora/features/progress/services/progress_service.dart';
 import 'package:calora/features/scanner/providers/barcode_lookup_provider.dart';
 import 'package:calora/features/scanner/providers/scanner_provider.dart';
-import 'package:calora/features/scanner/providers/usda_nutrition_lookup_provider.dart';
 import 'package:calora/features/scanner/services/barcode_scanner_service.dart';
 import 'package:calora/features/scanner/services/food_product_lookup_service.dart';
-import 'package:calora/features/scanner/services/usda_food_nutrition_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -67,9 +65,6 @@ List<SingleChildWidget> appProviders({
     ),
   ),
   Provider<BarcodeScannerService>(create: (_) => BarcodeScannerService()),
-  Provider<UsdaFoodNutritionService>(
-    create: (_) => FoodDataCentralNutritionService(),
-  ),
   ChangeNotifierProvider<AuthProvider>(
     create: (context) => AuthProvider(
       context.read<AuthService>(),
@@ -114,9 +109,5 @@ List<SingleChildWidget> appProviders({
   ),
   ChangeNotifierProvider<ScannerProvider>(
     create: (context) => ScannerProvider(context.read<BarcodeScannerService>()),
-  ),
-  ChangeNotifierProvider<UsdaNutritionLookupProvider>(
-    create: (context) =>
-        UsdaNutritionLookupProvider(context.read<UsdaFoodNutritionService>()),
   ),
 ];
