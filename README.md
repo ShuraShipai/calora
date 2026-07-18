@@ -183,59 +183,228 @@ calora/
 │   │
 │   └── features/                  # Feature-first product modules
 │       ├── auth/
-│       │   ├── providers/auth_provider.dart
-│       │   ├── services/{auth_service, user_profile_service,
-│       │   │   │         account_deletion_service}.dart
-│       │   └── presentation/
-│       │       ├── auth_validators.dart
-│       │       ├── screens/{login, sign_up, forgot_password}_screen.dart
-│       │       └── widgets/       # Auth scaffold, forms, fields, and footer
+│       │   ├── presentation/
+│       │   │   ├── auth_validators.dart
+│       │   │   ├── screens/
+│       │   │   │   ├── forgot_password_screen.dart
+│       │   │   │   ├── login_screen.dart
+│       │   │   │   └── sign_up_screen.dart
+│       │   │   └── widgets/
+│       │   │       ├── auth_footer.dart
+│       │   │       ├── auth_scaffold.dart
+│       │   │       ├── auth_text_field.dart
+│       │   │       ├── forgot_password_form.dart
+│       │   │       ├── login_form.dart
+│       │   │       └── sign_up_form.dart
+│       │   ├── providers/
+│       │   │   └── auth_provider.dart
+│       │   └── services/
+│       │       ├── account_deletion_service.dart
+│       │       ├── auth_service.dart
+│       │       └── user_profile_service.dart
 │       ├── diary/
-│       │   ├── models/{diary_entry, diary_food_source,
-│       │   │   │         diary_nutrition_totals, meal_type}.dart
+│       │   ├── models/
+│       │   │   ├── diary_entry.dart
+│       │   │   ├── diary_food_source.dart
+│       │   │   ├── diary_nutrition_totals.dart
+│       │   │   └── meal_type.dart
+│       │   ├── presentation/
+│       │   │   ├── screens/diary_screen.dart
+│       │   │   └── widgets/
+│       │   │       ├── diary_dashboard.dart
+│       │   │       ├── diary_data.dart
+│       │   │       ├── diary_day_section.dart
+│       │   │       ├── diary_empty_meal.dart
+│       │   │       ├── diary_empty_state.dart
+│       │   │       ├── diary_entry_list.dart
+│       │   │       ├── diary_food_action_button.dart
+│       │   │       ├── diary_food_actions.dart
+│       │   │       ├── diary_food_delete_sheet.dart
+│       │   │       ├── diary_food_detail_row.dart
+│       │   │       ├── diary_food_details_sheet.dart
+│       │   │       ├── diary_food_item.dart
+│       │   │       ├── diary_meal_card.dart
+│       │   │       ├── diary_meal_header.dart
+│       │   │       └── diary_summary.dart
 │       │   ├── providers/diary_provider.dart
-│       │   ├── services/diary_service.dart
-│       │   └── presentation/      # Diary screen, meal cards, entry details
+│       │   └── services/diary_service.dart
 │       ├── food/
-│       │   ├── models/{food_entry, custom_food_edit_arguments}.dart
-│       │   └── presentation/      # Add food, copy meal, and custom food flows
+│       │   ├── models/
+│       │   │   ├── custom_food_edit_arguments.dart
+│       │   │   └── food_entry.dart
+│       │   └── presentation/
+│       │       ├── screens/
+│       │       │   ├── add_food_screen.dart
+│       │       │   ├── copy_meal_screen.dart
+│       │       │   └── custom_food_screen.dart
+│       │       └── widgets/
+│       │           ├── add_food_quick_actions.dart
+│       │           ├── add_food_results.dart
+│       │           ├── add_food_search_field.dart
+│       │           ├── add_food_tabs.dart
+│       │           ├── copy_meal_empty_state.dart
+│       │           ├── copy_meal_group.dart
+│       │           ├── copy_meal_intro.dart
+│       │           ├── custom_food_date_time_field.dart
+│       │           ├── custom_food_date_time_fields.dart
+│       │           ├── custom_food_form.dart
+│       │           ├── food_entry_row.dart
+│       │           ├── meal_add_food_button.dart
+│       │           └── meal_card.dart
 │       ├── home/
 │       │   ├── models/home_dashboard.dart
+│       │   ├── presentation/
+│       │   │   ├── screens/home_screen.dart
+│       │   │   └── widgets/
+│       │   │       ├── home_calorie_summary.dart
+│       │   │       ├── home_header.dart
+│       │   │       ├── home_macros.dart
+│       │   │       ├── home_meal_summary_card.dart
+│       │   │       ├── home_meals_section.dart
+│       │   │       ├── home_water_card.dart
+│       │   │       └── home_weight_card.dart
 │       │   ├── providers/home_provider.dart
-│       │   ├── services/home_dashboard_service.dart
-│       │   └── presentation/      # Header, calories, macros, meals, water, weight
+│       │   └── services/home_dashboard_service.dart
 │       ├── onboarding/
-│       │   ├── providers/onboarding_provider.dart
-│       │   └── presentation/      # Splash, profile, activity, goals, and units steps
+│       │   ├── presentation/
+│       │   │   ├── screens/
+│       │   │   │   ├── onboarding_screen.dart
+│       │   │   │   └── splash_screen.dart
+│       │   │   └── widgets/
+│       │   │       ├── onboarding_activity_step.dart
+│       │   │       ├── onboarding_calorie_target.dart
+│       │   │       ├── onboarding_details_step.dart
+│       │   │       ├── onboarding_footer.dart
+│       │   │       ├── onboarding_goal_step.dart
+│       │   │       ├── onboarding_header.dart
+│       │   │       ├── onboarding_progress.dart
+│       │   │       ├── onboarding_selection_card.dart
+│       │   │       ├── onboarding_step_heading.dart
+│       │   │       ├── onboarding_text_field.dart
+│       │   │       ├── onboarding_units_step.dart
+│       │   │       ├── onboarding_view.dart
+│       │   │       ├── splash_actions.dart
+│       │   │       └── splash_brand_content.dart
+│       │   └── providers/onboarding_provider.dart
 │       ├── profile/
 │       │   ├── models/reminder.dart
-│       │   ├── providers/{data_export_provider, reminder_provider}.dart
-│       │   ├── services/{data_export_service, local_notification_service,
-│       │   │   │         reminder_service}.dart
-│       │   └── presentation/      # Profile, goals, reminders, units, privacy, support
+│       │   ├── presentation/
+│       │   │   ├── screens/
+│       │   │   │   ├── goals_screen.dart
+│       │   │   │   ├── help_support_screen.dart
+│       │   │   │   ├── personal_details_screen.dart
+│       │   │   │   ├── privacy_screen.dart
+│       │   │   │   ├── profile_screen.dart
+│       │   │   │   ├── reminders_screen.dart
+│       │   │   │   └── units_screen.dart
+│       │   │   └── widgets/
+│       │   │       ├── account_reauthentication_sheet.dart
+│       │   │       ├── goal_edit_sheet.dart
+│       │   │       ├── goals_list.dart
+│       │   │       ├── help_support_content.dart
+│       │   │       ├── profile_account_actions.dart
+│       │   │       ├── profile_confirm_action_sheet.dart
+│       │   │       ├── profile_details_form.dart
+│       │   │       ├── profile_details_summary.dart
+│       │   │       ├── profile_identity_header.dart
+│       │   │       ├── profile_page_header.dart
+│       │   │       ├── profile_section.dart
+│       │   │       ├── profile_theme_row.dart
+│       │   │       ├── reminders_list.dart
+│       │   │       ├── units_choice_cards.dart
+│       │   │       └── water_reminder_sheet.dart
+│       │   ├── providers/
+│       │   │   ├── data_export_provider.dart
+│       │   │   └── reminder_provider.dart
+│       │   └── services/
+│       │       ├── data_export_service.dart
+│       │       ├── local_notification_service.dart
+│       │       └── reminder_service.dart
 │       ├── progress/
-│       │   ├── models/{progress_date_range, progress_goal_metrics,
-│       │   │   │         water_entry, weight_entry}.dart
+│       │   ├── models/
+│       │   │   ├── progress_date_range.dart
+│       │   │   ├── progress_goal_metrics.dart
+│       │   │   ├── water_entry.dart
+│       │   │   └── weight_entry.dart
+│       │   ├── presentation/
+│       │   │   ├── screens/
+│       │   │   │   ├── progress_screen.dart
+│       │   │   │   ├── water_screen.dart
+│       │   │   │   └── weight_screen.dart
+│       │   │   └── widgets/
+│       │   │       ├── custom_water_sheet.dart
+│       │   │       ├── daily_calorie_swipe_detector.dart
+│       │   │       ├── log_weight_sheet.dart
+│       │   │       ├── progress_filter_chips.dart
+│       │   │       ├── progress_insights_card.dart
+│       │   │       ├── progress_page_body.dart
+│       │   │       ├── progress_trends_card.dart
+│       │   │       ├── water_history_list.dart
+│       │   │       ├── water_page_body.dart
+│       │   │       ├── water_quick_add_buttons.dart
+│       │   │       ├── water_ring_card.dart
+│       │   │       ├── weight_history_list.dart
+│       │   │       ├── weight_page_body.dart
+│       │   │       ├── weight_summary_cards.dart
+│       │   │       └── weight_trend_card.dart
 │       │   ├── providers/progress_provider.dart
-│       │   ├── services/progress_service.dart
-│       │   └── presentation/      # Progress, water and weight screens and charts
+│       │   └── services/progress_service.dart
 │       └── scanner/
-│           ├── models/{barcode_product, scan_item, scan_result_outcome,
-│           │   │         scanner_request, usda_food_nutrition}.dart
-│           ├── providers/{barcode_lookup_provider, scanner_provider,
-│           │   │         usda_nutrition_lookup_provider}.dart
-│           ├── services/{barcode_scanner_service, food_product_lookup_service,
-│           │   │         usda_food_nutrition_service}.dart
-│           └── presentation/      # Camera, barcode results, nutrition, meal picker
+│           ├── models/
+│           │   ├── barcode_product.dart
+│           │   ├── scan_item.dart
+│           │   ├── scan_result_outcome.dart
+│           │   ├── scanner_request.dart
+│           │   └── usda_food_nutrition.dart
+│           ├── presentation/
+│           │   ├── screens/
+│           │   │   ├── scan_results_screen.dart
+│           │   │   └── scanner_screen.dart
+│           │   └── widgets/
+│           │       ├── barcode_camera_preview.dart
+│           │       ├── scan_estimate_notice.dart
+│           │       ├── scan_food_sheet.dart
+│           │       ├── scan_items_list.dart
+│           │       ├── scan_meal_picker.dart
+│           │       ├── scan_nutrition_summary.dart
+│           │       └── scanner_preview.dart
+│           ├── providers/
+│           │   ├── barcode_lookup_provider.dart
+│           │   ├── scanner_provider.dart
+│           │   └── usda_nutrition_lookup_provider.dart
+│           └── services/
+│               ├── barcode_scanner_service.dart
+│               ├── food_product_lookup_service.dart
+│               └── usda_food_nutrition_service.dart
 │
 ├── test/                          # Unit and widget tests mirroring app layers
 │   ├── support/fake_auth_dependencies.dart
 │   ├── account_deletion_service_test.dart
+│   ├── app_test.dart
+│   ├── auth_validators_test.dart
+│   ├── calora_sheet_test.dart
+│   ├── daily_goal_status_test.dart
+│   ├── data_export_service_test.dart
+│   ├── diary_food_item_test.dart
+│   ├── diary_food_source_test.dart
 │   ├── diary_provider_test.dart
+│   ├── food_product_lookup_service_test.dart
+│   ├── goals_list_test.dart
+│   ├── home_dashboard_test.dart
+│   ├── home_weight_card_test.dart
+│   ├── measurement_formatter_test.dart
+│   ├── network_client_test.dart
 │   ├── onboarding_provider_test.dart
+│   ├── profile_data_support_navigation_test.dart
+│   ├── progress_date_range_test.dart
+│   ├── progress_goal_metrics_test.dart
+│   ├── progress_page_body_test.dart
 │   ├── progress_provider_test.dart
 │   ├── reminder_provider_test.dart
-│   └── …                          # Focused model, service, provider, and widget tests
+│   ├── theme_provider_test.dart
+│   ├── usda_food_nutrition_service_test.dart
+│   ├── usda_nutrition_lookup_provider_test.dart
+│   └── user_profile_test.dart
 ├── README.md
 ├── pubspec.yaml                   # Flutter SDK, package, font, and asset declarations
 ├── analysis_options.yaml
